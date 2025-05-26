@@ -5,52 +5,13 @@ import { useEffect, useState } from "react";
 import ChartsGrid from "../../components/ChartsGrid";
 import DashboardFooter from "../../components/DashboardFooter";
 import DashboardHeader from "../../components/DashboardHeader";
+import DashboardOverview from "../../components/DashboardOverview";
 import EmptyState from "../../components/EmptyState";
 import ErrorState from "../../components/ErrorState";
 import InsightsSection from "../../components/InsightsSection";
 import KeyMetrics from "../../components/KeyMetrics";
 import LoadingState from "../../components/LoadingState";
-
-interface ChartConfig {
-  chart_type: string;
-  title: string;
-  x_axis: string;
-  y_axis: string;
-  data: {
-    labels: string[];
-    datasets: Array<{
-      label: string;
-      data: number[];
-      backgroundColor?: string | string[];
-      borderColor?: string | string[];
-      borderWidth?: number;
-      tension?: number;
-    }>;
-  };
-  insights?: string;
-  color_scheme?: string;
-}
-
-interface KeyMetric {
-  metric: string;
-  value: string;
-  description: string;
-}
-
-interface DashboardConfig {
-  title: string;
-  charts: ChartConfig[];
-  insights: string;
-  summary: string;
-  key_metrics: KeyMetric[];
-}
-
-interface DashboardData {
-  dashboard_id: string;
-  dashboard_config: DashboardConfig;
-  status: string;
-  message?: string;
-}
+import { DashboardData } from "../../types/dashboard";
 
 export default function DashboardPage() {
   const params = useParams();
@@ -102,6 +63,8 @@ export default function DashboardPage() {
           title={dashboard.dashboard_config.title}
           summary={dashboard.dashboard_config.summary}
         />
+
+        <DashboardOverview charts={dashboard.dashboard_config.charts} />
 
         <KeyMetrics metrics={dashboard.dashboard_config.key_metrics} />
 

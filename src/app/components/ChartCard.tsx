@@ -28,10 +28,9 @@ interface ChartConfig {
 
 interface ChartCardProps {
   chart: ChartConfig;
-  index: number;
 }
 
-export default function ChartCard({ chart, index }: ChartCardProps) {
+export default function ChartCard({ chart }: ChartCardProps) {
   const getChartIcon = (chartType: string) => {
     switch (chartType) {
       case "bar":
