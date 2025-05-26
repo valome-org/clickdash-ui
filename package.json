@@ -11,7 +11,10 @@
   "dependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.3.2"
+    "next": "15.3.2",
+    "react-dropzone": "^14.2.0",
+    "zod": "^3.22.0",
+    "react-icons": "^5.0.1"
   },
   "devDependencies": {
     "typescript": "^5",
