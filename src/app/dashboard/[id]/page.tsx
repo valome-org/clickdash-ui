@@ -1,6 +1,7 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useAuth } from "@/app/contexts/AuthContext";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import ChartsGrid from "../../components/ChartsGrid";
 import DashboardFooter from "../../components/DashboardFooter";
@@ -15,18 +16,40 @@ import { DashboardData } from "../../types/dashboard";
 
 export default function DashboardPage() {
   const params = useParams();
+  const router = useRouter();
   const dashboardId = params.id as string;
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user, token, logout } = useAuth();
 
   useEffect(() => {
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
     const fetchDashboard = async () => {
+      if (!token) return;
+
       try {
         setLoading(true);
         const backendUrl =
-          process.env.NEXT_PUBLIC_PYTHON_SERVICE_URL || "http://localhost:8000";
-        const response = await fetch(`${backendUrl}/dashboard/${dashboardId}`);
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        const response = await fetch(
+          `${backendUrl}/api/dashboard/${dashboardId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.status === 401) {
+          logout();
+          router.push("/login");
+          return;
+        }
 
         if (!response.ok) {
           throw new Error(`Failed to fetch dashboard: ${response.statusText}`);
@@ -46,9 +69,9 @@ export default function DashboardPage() {
     if (dashboardId) {
       fetchDashboard();
     }
-  }, [dashboardId]);
+  }, [dashboardId, user, token, router, logout]);
 
-  if (loading) {
+  if (!user || loading) {
     return <LoadingState />;
   }
 
