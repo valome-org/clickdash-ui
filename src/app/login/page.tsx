@@ -1,6 +1,20 @@
 "use client";
 
 import { useAuth } from "@/app/contexts/AuthContext";
+import { BackgroundBeams } from "@/components/ui/background-beams";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { motion } from "framer-motion";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -8,6 +22,7 @@ import { useEffect, useState } from "react";
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login, user, error, isLoading } = useAuth();
   const router = useRouter();
@@ -32,122 +47,149 @@ export default function LoginPage() {
 
   if (isLoading) {
     return (
-      <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100'>
-        <div className='animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600'></div>
+      <div className='min-h-screen flex items-center justify-center'>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className='flex flex-col items-center space-y-4'
+        >
+          <Loader2 className='h-12 w-12 animate-spin text-primary' />
+          <p className='text-muted-foreground'>Loading...</p>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100'>
-      <div className='max-w-md w-full space-y-8 p-8'>
-        <div className='bg-white rounded-2xl shadow-xl p-8'>
-          <div className='text-center'>
-            <h2 className='mt-6 text-3xl font-bold text-gray-900'>
-              Welcome Back
-            </h2>
-            <p className='mt-2 text-sm text-gray-600'>
-              Sign in to your ClickDash account
-            </p>
-          </div>
+    <div className='min-h-screen relative flex items-center justify-center'>
+      <BackgroundBeams />
 
-          <form className='mt-8 space-y-6' onSubmit={handleSubmit}>
-            {error && (
-              <div className='bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg'>
-                {error}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className='relative z-10 w-full max-w-md p-6'
+      >
+        <Card className='backdrop-blur-sm bg-card/80 shadow-2xl'>
+          <CardHeader className='text-center space-y-2'>
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+            >
+              <div className='mx-auto w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mb-4'>
+                <span className='text-white font-bold text-xl'>C</span>
               </div>
+            </motion.div>
+            <CardTitle className='text-2xl font-bold'>Welcome Back</CardTitle>
+            <CardDescription>Sign in to your ClickDash account</CardDescription>
+          </CardHeader>
+
+          <CardContent className='space-y-6'>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className='p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm'
+              >
+                {error}
+              </motion.div>
             )}
 
-            <div className='space-y-4'>
-              <div>
-                <label
-                  htmlFor='username'
-                  className='block text-sm font-medium text-gray-700'
-                >
-                  Username
-                </label>
-                <input
+            <form onSubmit={handleSubmit} className='space-y-4'>
+              <div className='space-y-2'>
+                <Label htmlFor='username'>Username</Label>
+                <Input
                   id='username'
-                  name='username'
                   type='text'
-                  required
+                  placeholder='Enter your username'
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className='mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-                  placeholder='Enter your username'
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor='password'
-                  className='block text-sm font-medium text-gray-700'
-                >
-                  Password
-                </label>
-                <input
-                  id='password'
-                  name='password'
-                  type='password'
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className='mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-                  placeholder='Enter your password'
                 />
               </div>
-            </div>
 
-            <div>
-              <button
-                type='submit'
-                disabled={isSubmitting}
-                className='group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200'
-              >
+              <div className='space-y-2'>
+                <Label htmlFor='password'>Password</Label>
+                <div className='relative'>
+                  <Input
+                    id='password'
+                    type={showPassword ? "text" : "password"}
+                    placeholder='Enter your password'
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className='pr-10'
+                  />
+                  <Button
+                    type='button'
+                    variant='ghost'
+                    size='sm'
+                    className='absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent'
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className='h-4 w-4 text-muted-foreground' />
+                    ) : (
+                      <Eye className='h-4 w-4 text-muted-foreground' />
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              <Button type='submit' disabled={isSubmitting} className='w-full'>
                 {isSubmitting ? (
-                  <div className='flex items-center'>
-                    <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2'></div>
+                  <>
+                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
                     Signing in...
-                  </div>
+                  </>
                 ) : (
                   "Sign in"
                 )}
-              </button>
-            </div>
+              </Button>
+            </form>
 
             <div className='text-center'>
-              <p className='text-sm text-gray-600'>
-                No have an account?{" "}
+              <p className='text-sm text-muted-foreground'>
+                Don&apos;t have an account?{" "}
                 <Link
                   href='/register'
-                  className='font-medium text-blue-600 hover:text-blue-500'
+                  className='font-medium text-primary hover:underline'
                 >
                   Sign up
                 </Link>
               </p>
             </div>
 
-            <div className='mt-6 border-t border-gray-200 pt-6'>
-              <div className='bg-blue-50 border border-blue-200 rounded-lg p-4'>
-                <h3 className='text-sm font-medium text-blue-800 mb-2'>
-                  Demo Account
-                </h3>
-                <p className='text-xs text-blue-700 mb-2'>
-                  Use these credentials to test the application:
-                </p>
-                <div className='text-xs text-blue-600 space-y-1'>
-                  <div>
-                    <strong>Username:</strong> admin
+            <div className='border-t pt-6'>
+              <Card className='bg-muted/50'>
+                <CardContent className='p-4'>
+                  <div className='flex items-center justify-between mb-2'>
+                    <h3 className='text-sm font-medium'>Demo Account</h3>
+                    <Badge variant='secondary' className='text-xs'>
+                      Test
+                    </Badge>
                   </div>
-                  <div>
-                    <strong>Password:</strong> admin123
+                  <p className='text-xs text-muted-foreground mb-3'>
+                    Use these credentials to test the application:
+                  </p>
+                  <div className='space-y-1 text-xs'>
+                    <div className='flex justify-between'>
+                      <span>Username:</span>
+                      <code className='bg-muted px-1 rounded'>admin</code>
+                    </div>
+                    <div className='flex justify-between'>
+                      <span>Password:</span>
+                      <code className='bg-muted px-1 rounded'>admin123</code>
+                    </div>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </div>
-          </form>
-        </div>
-      </div>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   );
 }
