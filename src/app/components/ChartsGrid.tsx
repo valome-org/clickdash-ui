@@ -7,21 +7,6 @@ interface ChartsGridProps {
 }
 
 export default function ChartsGrid({ charts }: ChartsGridProps) {
-  // Simple responsive grid layout
-  const getGridLayout = (chartCount: number) => {
-    if (chartCount === 1) {
-      return "grid-cols-1 mx-auto";
-    } else if (chartCount === 2) {
-      return "grid-cols-1 lg:grid-cols-1 mx-auto";
-    } else if (chartCount === 3) {
-      return "grid-cols-1 md:grid-cols-2 lg:grid-cols-2 mx-auto";
-    } else {
-      return "grid-cols-1 md:grid-cols-2 lg:grid-cols-2 mx-auto";
-    }
-  };
-
-  const gridLayout = getGridLayout(charts.length);
-
   return (
     <section className='py-8'>
       <div className='container mx-auto px-4'>
@@ -45,7 +30,7 @@ export default function ChartsGrid({ charts }: ChartsGridProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className={`grid ${gridLayout} gap-6`}
+          className={`grid grid-cols-1 mx-auto gap-6`}
         >
           {charts.map((chart, index) => (
             <motion.div
