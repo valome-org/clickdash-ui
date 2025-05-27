@@ -24,14 +24,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login, user, error, isLoading } = useAuth();
+  const { login, user, error, isLoading, isAuthenticated } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (user) {
-      router.push("/dashboard/history");
+    if (!isLoading && isAuthenticated && user) {
+      router.replace("/dashboard");
     }
-  }, [user, router]);
+  }, [user, isAuthenticated, isLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +39,7 @@ export default function LoginPage() {
 
     const success = await login(username, password);
     if (success) {
-      router.push("/dashboard/history");
+      router.replace("/dashboard");
     }
 
     setIsSubmitting(false);

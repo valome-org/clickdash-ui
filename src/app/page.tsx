@@ -12,16 +12,15 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function HomePage() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, isAuthenticated } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading) {
-      if (user) {
-        router.push("/dashboard/history");
-      }
+    // Only redirect if we're sure the user is authenticated and not loading
+    if (!isLoading && isAuthenticated && user) {
+      router.replace("/dashboard");
     }
-  }, [user, isLoading, router]);
+  }, [user, isAuthenticated, isLoading, router]);
 
   if (isLoading) {
     return (

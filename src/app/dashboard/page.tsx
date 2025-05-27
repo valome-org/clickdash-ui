@@ -56,13 +56,13 @@ interface Dashboard {
   user_id: number;
 }
 
-export default function DashboardHistoryPage() {
+export default function DashboardPage() {
   const [dashboards, setDashboards] = useState<Dashboard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "title">("newest");
-  const { user, token, logout } = useAuth();
+  const { user, token, logout, isAuthenticated } = useAuth();
   const router = useRouter();
 
   const API_BASE_URL =
@@ -100,12 +100,17 @@ export default function DashboardHistoryPage() {
   }, [token, logout, router, API_BASE_URL]);
 
   useEffect(() => {
-    if (!user) {
-      router.push("/login");
+    // Only redirect if we're sure the user is not authenticated
+    if (!isLoading && !isAuthenticated) {
+      router.replace("/login");
       return;
     }
-    fetchDashboards();
-  }, [user, router, fetchDashboards]);
+
+    // Fetch dashboards if user is authenticated and we have a token
+    if (isAuthenticated && user && token) {
+      fetchDashboards();
+    }
+  }, [user, token, isAuthenticated, isLoading, router, fetchDashboards]);
 
   const deleteDashboard = async (dashboardId: string) => {
     if (!token || !confirm("Are you sure you want to delete this dashboard?"))
@@ -178,7 +183,7 @@ export default function DashboardHistoryPage() {
           </div>
           <div className='text-center space-y-2'>
             <h3 className='text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent'>
-              Loading Dashboard Universe
+              Loading ClickDash
             </h3>
             <p className='text-muted-foreground'>
               Preparing your analytics workspace...
@@ -216,12 +221,9 @@ export default function DashboardHistoryPage() {
 
           <h1 className='text-5xl md:text-7xl font-bold mb-6'>
             <span className='bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent'>
-              Dashboard
+              ClickDash
             </span>
             <br />
-            <span className='bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 bg-clip-text text-transparent'>
-              Universe
-            </span>
           </h1>
 
           <p className='text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed'>

@@ -19,7 +19,9 @@ interface AuthContextType {
   register: (userData: RegisterData) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
+  isAuthenticated: boolean;
   error: string | null;
+  validateToken: () => Promise<boolean>;
 }
 
 interface RegisterData {
@@ -35,21 +37,71 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-  useEffect(() => {
-    // Check for stored token on mount
+  const validateToken = async (): Promise<boolean> => {
     const storedToken = localStorage.getItem("auth_token");
-    const storedUser = localStorage.getItem("auth_user");
-
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+    if (!storedToken) {
+      return false;
     }
-    setIsLoading(false);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+        headers: {
+          Authorization: `Bearer ${storedToken}`,
+        },
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        // Update user data if it's different from stored data
+        setUser(userData);
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      console.error("Token validation failed:", error);
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    const initializeAuth = async () => {
+      setIsLoading(true);
+
+      // Check for stored token and validate it
+      const storedToken = localStorage.getItem("auth_token");
+      const storedUser = localStorage.getItem("auth_user");
+
+      if (storedToken && storedUser) {
+        // Set the user data immediately from localStorage to prevent redirect
+        setToken(storedToken);
+        setUser(JSON.parse(storedUser));
+        setIsAuthenticated(true);
+
+        // Then validate the token with the server in the background
+        const isValid = await validateToken();
+        if (!isValid) {
+          // Only clear if token is actually invalid
+          setToken(null);
+          setUser(null);
+          setIsAuthenticated(false);
+          localStorage.removeItem("auth_token");
+          localStorage.removeItem("auth_user");
+        }
+      } else {
+        setIsAuthenticated(false);
+      }
+
+      setIsLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
   const login = async (
@@ -77,6 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setToken(data.access_token);
       setUser(data.user);
+      setIsAuthenticated(true);
 
       // Store in localStorage
       localStorage.setItem("auth_token", data.access_token);
@@ -85,6 +138,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
+      setIsAuthenticated(false);
       return false;
     } finally {
       setIsLoading(false);
@@ -113,6 +167,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return await login(userData.username, userData.password);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
+      setIsAuthenticated(false);
       return false;
     } finally {
       setIsLoading(false);
@@ -122,6 +177,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     setUser(null);
     setToken(null);
+    setIsAuthenticated(false);
     localStorage.removeItem("auth_token");
     localStorage.removeItem("auth_user");
   };
@@ -135,7 +191,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         register,
         logout,
         isLoading,
+        isAuthenticated,
         error,
+        validateToken,
       }}
     >
       {children}

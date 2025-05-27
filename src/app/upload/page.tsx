@@ -114,7 +114,7 @@ export default function UploadPage() {
             </div>
             <div className='mt-4 md:mt-0 flex space-x-4'>
               <Link
-                href='/dashboard/history'
+                href='/dashboard'
                 className='bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200'
               >
                 View History
