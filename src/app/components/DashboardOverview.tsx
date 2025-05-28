@@ -124,48 +124,49 @@ export default function DashboardOverview({ charts }: DashboardOverviewProps) {
     switch (color) {
       case "blue":
         return {
-          bg: "bg-blue-50",
-          border: "border-blue-200",
+          bg: "bg-gradient-to-br from-blue-500/10 to-blue-600/20",
+          border: "border-blue-200/50",
           icon: "text-blue-600",
-          text: "text-blue-800",
+          text: "text-blue-800 dark:text-blue-300",
+          iconBg: "bg-blue-100/80 dark:bg-blue-900/30",
         };
       case "green":
         return {
-          bg: "bg-green-50",
-          border: "border-green-200",
+          bg: "bg-gradient-to-br from-green-500/10 to-green-600/20",
+          border: "border-green-200/50",
           icon: "text-green-600",
-          text: "text-green-800",
+          text: "text-green-800 dark:text-green-300",
+          iconBg: "bg-green-100/80 dark:bg-green-900/30",
         };
       case "purple":
         return {
-          bg: "bg-purple-50",
-          border: "border-purple-200",
+          bg: "bg-gradient-to-br from-purple-500/10 to-purple-600/20",
+          border: "border-purple-200/50",
           icon: "text-purple-600",
-          text: "text-purple-800",
+          text: "text-purple-800 dark:text-purple-300",
+          iconBg: "bg-purple-100/80 dark:bg-purple-900/30",
         };
       case "red":
         return {
-          bg: "bg-red-50",
-          border: "border-red-200",
+          bg: "bg-gradient-to-br from-red-500/10 to-red-600/20",
+          border: "border-red-200/50",
           icon: "text-red-600",
-          text: "text-red-800",
+          text: "text-red-800 dark:text-red-300",
+          iconBg: "bg-red-100/80 dark:bg-red-900/30",
         };
       default:
         return {
-          bg: "bg-gray-50",
-          border: "border-gray-200",
+          bg: "bg-gradient-to-br from-gray-500/10 to-gray-600/20",
+          border: "border-gray-200/50",
           icon: "text-gray-600",
-          text: "text-gray-800",
+          text: "text-gray-800 dark:text-gray-300",
+          iconBg: "bg-gray-100/80 dark:bg-gray-900/30",
         };
     }
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className='mb-8'
-    >
+    <div>
       {/* Overview Cards */}
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6'>
         {overviewCards.map((card, index) => {
@@ -176,38 +177,37 @@ export default function DashboardOverview({ charts }: DashboardOverviewProps) {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.1 }}
-              className={`${colors.bg} ${colors.border} border rounded-2xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer`}
+              className={`${colors.bg} border ${colors.border} rounded-2xl p-6 hover:shadow-lg transition-all duration-300 backdrop-blur-sm`}
             >
               <div className='flex items-center justify-between mb-3'>
-                <div className={`p-2 rounded-lg bg-white ${colors.icon}`}>
+                <div
+                  className={`p-2 rounded-lg ${colors.iconBg} ${colors.icon} backdrop-blur-sm`}
+                >
                   {card.icon}
                 </div>
-                <div className={`text-2xl font-bold ${colors.text}`}>
+                <div className={`text-3xl font-bold ${colors.text}`}>
                   {card.value}
                 </div>
               </div>
               <h3 className={`font-semibold ${colors.text} mb-1`}>
                 {card.title}
               </h3>
-              <p className='text-gray-600 text-sm'>{card.description}</p>
+              <p className='text-gray-600 dark:text-gray-400 text-sm'>
+                {card.description}
+              </p>
             </motion.div>
           );
         })}
       </div>
 
       {/* Chart Types Summary */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.4 }}
-        className='bg-white rounded-2xl shadow-xl p-6'
-      >
-        <div className='flex items-center justify-between mb-4'>
-          <h3 className='text-lg font-semibold text-gray-800 flex items-center'>
+      <div className='bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm rounded-2xl border border-white/20 shadow-xl p-6'>
+        <div className='flex items-center justify-between mb-6'>
+          <h3 className='text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center'>
             <BarChart3 className='w-5 h-5 mr-2 text-blue-600' />
             Chart Types Overview
           </h3>
-          <div className='text-sm text-gray-500'>
+          <div className='text-sm text-gray-500 dark:text-gray-400 bg-blue-50/50 dark:bg-blue-900/30 px-3 py-1 rounded-full backdrop-blur-sm'>
             {stats.chartTypes.length} types • {stats.totalCharts} total charts
           </div>
         </div>
@@ -220,24 +220,27 @@ export default function DashboardOverview({ charts }: DashboardOverviewProps) {
             const percentage = ((count / stats.totalCharts) * 100).toFixed(1);
 
             return (
-              <div
+              <motion.div
                 key={index}
-                className='bg-gray-50 rounded-lg p-4 text-center hover:bg-gray-100 transition-colors'
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 + index * 0.1 }}
+                className='bg-blue-50/40 dark:bg-blue-900/20 backdrop-blur-sm border border-blue-100/30 dark:border-blue-800/30 rounded-xl p-4 text-center hover:shadow-md hover:bg-blue-50/70 dark:hover:bg-blue-900/40 transition-all'
               >
-                <div className='flex justify-center mb-2 text-blue-600'>
+                <div className='flex justify-center mb-2 text-blue-600 bg-white/70 dark:bg-slate-800/70 p-2 rounded-lg mx-auto'>
                   {getChartTypeIcon(type)}
                 </div>
-                <div className='text-sm font-medium text-gray-800 capitalize mb-1'>
+                <div className='text-sm font-medium text-gray-800 dark:text-gray-200 capitalize mb-1'>
                   {type}
                 </div>
-                <div className='text-xs text-gray-500'>
+                <div className='text-xs text-gray-500 dark:text-gray-400'>
                   {count} charts ({percentage}%)
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 }

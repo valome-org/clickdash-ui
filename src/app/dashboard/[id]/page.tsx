@@ -1,18 +1,25 @@
 "use client";
 
 import { useAuth } from "@/app/contexts/AuthContext";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import ChartsGrid from "../../components/ChartsGrid";
 import DashboardFooter from "../../components/DashboardFooter";
-import DashboardHeader from "../../components/DashboardHeader";
 import DashboardOverview from "../../components/DashboardOverview";
 import EmptyState from "../../components/EmptyState";
-import ErrorState from "../../components/ErrorState";
 import InsightsSection from "../../components/InsightsSection";
 import KeyMetrics from "../../components/KeyMetrics";
-import LoadingState from "../../components/LoadingState";
 import { DashboardData } from "../../types/dashboard";
+
+// Import reusable components
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ErrorAlert } from "@/components/ui/error-alert";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { PageBackground } from "@/components/ui/page-background";
+import { PageHeader } from "@/components/ui/page-header";
+import { ArrowLeft, Download, LineChart, PieChart, Share2 } from "lucide-react";
 
 export default function DashboardPage() {
   const params = useParams();
@@ -72,35 +79,119 @@ export default function DashboardPage() {
   }, [dashboardId, user, token, router, logout]);
 
   if (!user || loading) {
-    return <LoadingState />;
+    return (
+      <LoadingSpinner
+        title='Loading Dashboard'
+        subtitle='Preparing your data visualizations...'
+      />
+    );
   }
 
   if (error || !dashboard) {
-    return <ErrorState error={error || "Dashboard not found"} />;
+    return (
+      <PageBackground>
+        <div className='py-8'>
+          <Button asChild variant='outline' className='mb-8'>
+            <Link href='/dashboard'>
+              <ArrowLeft className='mr-2 h-4 w-4' />
+              Back to Dashboards
+            </Link>
+          </Button>
+          <ErrorAlert message={error || "Dashboard not found"} />
+        </div>
+      </PageBackground>
+    );
   }
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100'>
-      <div className='container mx-auto px-4 py-8'>
-        <DashboardHeader
-          title={dashboard.dashboard_config.title}
-          summary={dashboard.dashboard_config.summary}
-        />
+    <PageBackground>
+      <div className='mb-8 flex items-center justify-between'>
+        <Button
+          asChild
+          variant='outline'
+          className='backdrop-blur-sm bg-white/50 border-white/30 shadow-lg'
+        >
+          <Link href='/dashboard'>
+            <ArrowLeft className='mr-2 h-4 w-4' />
+            Back to Dashboards
+          </Link>
+        </Button>
 
-        <DashboardOverview charts={dashboard.dashboard_config.charts} />
-
-        <KeyMetrics metrics={dashboard.dashboard_config.key_metrics} />
-
-        <InsightsSection insights={dashboard.dashboard_config.insights} />
-
-        {dashboard.dashboard_config.charts.length > 0 ? (
-          <ChartsGrid charts={dashboard.dashboard_config.charts} />
-        ) : (
-          <EmptyState />
-        )}
-
-        <DashboardFooter />
+        <div className='flex space-x-3'>
+          <Button
+            variant='outline'
+            className='backdrop-blur-sm bg-white/50 border-white/30 shadow-lg'
+          >
+            <Download className='mr-2 h-4 w-4' />
+            Export
+          </Button>
+          <Button
+            variant='outline'
+            className='backdrop-blur-sm bg-white/50 border-white/30 shadow-lg'
+          >
+            <Share2 className='mr-2 h-4 w-4' />
+            Share
+          </Button>
+        </div>
       </div>
-    </div>
+
+      {/* Dashboard Header */}
+      <PageHeader
+        badge='Analytics Dashboard'
+        title={dashboard.dashboard_config.title}
+        description={dashboard.dashboard_config.summary}
+      />
+
+      {/* Key Metrics Section */}
+      <Card className='backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-white/20 shadow-2xl mb-8'>
+        <CardHeader className='pb-0'>
+          <CardTitle className='text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center'>
+            <LineChart className='mr-3 h-6 w-6 text-blue-600' />
+            Key Metrics
+          </CardTitle>
+        </CardHeader>
+        <CardContent className='p-6'>
+          <KeyMetrics metrics={dashboard.dashboard_config.key_metrics} />
+        </CardContent>
+      </Card>
+
+      {/* Dashboard Overview */}
+      <Card className='backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-white/20 shadow-2xl mb-8'>
+        <CardContent className='p-6'>
+          <DashboardOverview charts={dashboard.dashboard_config.charts} />
+        </CardContent>
+      </Card>
+
+      {/* Insights Section */}
+      <Card className='backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-white/20 shadow-2xl mb-8'>
+        <CardHeader className='pb-0'>
+          <CardTitle className='text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent'>
+            AI-Generated Insights
+          </CardTitle>
+        </CardHeader>
+        <CardContent className='p-6'>
+          <InsightsSection insights={dashboard.dashboard_config.insights} />
+        </CardContent>
+      </Card>
+
+      {/* Charts Grid */}
+      <Card className='backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-white/20 shadow-2xl mb-8'>
+        <CardHeader className='pb-0'>
+          <CardTitle className='text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent'>
+            <PieChart className='mr-3 h-6 w-6 text-blue-600 inline' />
+            Visualizations
+          </CardTitle>
+        </CardHeader>
+        <CardContent className='p-6'>
+          {dashboard.dashboard_config.charts.length > 0 ? (
+            <ChartsGrid charts={dashboard.dashboard_config.charts} />
+          ) : (
+            <EmptyState />
+          )}
+        </CardContent>
+      </Card>
+
+      <DashboardFooter />
+    </PageBackground>
   );
 }
