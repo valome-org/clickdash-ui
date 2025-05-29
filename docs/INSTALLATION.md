@@ -13,8 +13,7 @@ This guide will help you set up the UI component of ClickDash, a Next.js-based f
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
-cd clickdash/ui
+git clone https://github.com/valome-org/clickdash-ui.git
 ```
 
 ### 2. Install Dependencies
@@ -30,9 +29,6 @@ Create a `.env.local` file in the UI root directory with the following variables
 ```
 # API Configuration
 NEXT_PUBLIC_API_URL=http://localhost:8000/api
-
-# Authentication
-NEXT_PUBLIC_AUTH_ENABLED=true
 ```
 
 Adjust the API URL if your backend is running on a different host or port.

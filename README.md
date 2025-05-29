@@ -1,19 +1,13 @@
 # 📊 ClickDash
 
-> Transform your Excel data into beautiful, AI-powered dashboards with zero coding required.
-
-[![Live Demo](https://img.shields.io/badge/🚀-Live%20Demo-blue?style=for-the-badge)](https://your-demo-url.com)
-[![Video Demo](https://img.shields.io/badge/🎥-Video%20Demo-red?style=for-the-badge)](https://your-video-url.com)
-
-## 🎬 Demo Video
-
-*Video demo will be added here*
-
----
-
 ## ✨ What is ClickDash?
 
 ClickDash is a revolutionary dashboard generator that transforms your Excel files into stunning, interactive visualizations using the power of AI. No coding skills required – just upload your data and watch the magic happen!
+
+[![Video Demo](https://img.shields.io/badge/🎥-Video%20Demo-red?style=for-the-badge)](https://youtu.be/Z6ClqWc08kQ?si=sDhvBLOVQl6aHHMy)
+
+
+> Transform your Excel data into beautiful, AI-powered dashboards with zero coding required.
 
 ### 🎯 Why Choose ClickDash?
 
@@ -73,20 +67,6 @@ Export, share, or embed your dashboards anywhere. Perfect for presentations and 
 - **📈 Sales Teams** - Track performance with beautiful charts
 - **💼 Consultants** - Impress clients with stunning data stories
 
-## 🌟 What Users Say
-
-> "ClickDash transformed how we present data to our clients. What used to take hours now takes minutes!"
->
-> *— Sarah, Business Analyst*
-
-> "The AI suggestions are incredibly smart. It found patterns in our data we never noticed."
->
-> *— Mike, Data Manager*
-
-> "Finally, a tool that makes beautiful dashboards without needing a designer!"
->
-> *— Lisa, Marketing Director*
-
 ## 🚀 Get Started in 30 Seconds
 
 ### Try the Demo
@@ -108,49 +88,9 @@ Use our demo account to explore all features:
 - Beautiful dashboard examples
 - Mobile responsive design
 
-## 🎁 Pricing
-
-### 🆓 **Free Plan**
-- 3 dashboards per month
-- Basic chart types
-- Standard templates
-- Community support
-
-### 💎 **Pro Plan** - $9/month
-- Unlimited dashboards
-- Advanced visualizations
-- Custom branding
-- Priority support
-- Team collaboration
-
-### 🏢 **Enterprise** - Contact us
-- Custom integrations
-- Advanced security
-- Dedicated support
-- On-premise deployment
-
 ## 🤝 Join Our Community
 
 - 🌟 **Star us on GitHub** if you love the project
 - 🐛 **Report bugs** to help us improve
 - 💡 **Suggest features** for future updates
 - 📢 **Share your dashboards** with the community
-
-## 📞 Support & Contact
-
-- 📧 **Email:** support@clickdash.com
-- 💬 **Discord:** [Join our community](https://discord.gg/clickdash)
-- 📖 **Documentation:** [docs.clickdash.com](https://docs.clickdash.com)
-- 🐦 **Twitter:** [@ClickDashApp](https://twitter.com/clickdashapp)
-
----
-
-<div align="center">
-  <h3>🚀 Ready to transform your data?</h3>
-  <p>
-    <a href="https://your-app-url.com" style="text-decoration: none;">
-      <img src="https://img.shields.io/badge/Try%20ClickDash-Free-brightgreen?style=for-the-badge&logo=rocket" alt="Try ClickDash Free">
-    </a>
-  </p>
-  <p><em>No credit card required • 30-second setup • Beautiful results guaranteed</em></p>
-</div>
