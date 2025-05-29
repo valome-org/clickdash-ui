@@ -75,7 +75,7 @@ Use our demo account to explore all features:
 - **Password:** `admin123`
 
 ### Quick Start
-1. Visit [ClickDash](https://your-app-url.com)
+1. Visit [ClickDash](https://github.com/valome-org/clickdash-ui)
 2. Sign up for free
 3. Upload your Excel file
 4. Watch your dashboard come to life!
