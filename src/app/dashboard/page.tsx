@@ -361,7 +361,7 @@ export default function DashboardPage() {
 
       {/* Statistics */}
       {dashboards.length > 0 && (
-        <div className='mt-16'>
+        <div className='mt-44'>
           <Card className='backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-white/20 shadow-2xl'>
             <CardHeader>
               <CardTitle className='text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center'>

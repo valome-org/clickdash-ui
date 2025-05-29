@@ -10,7 +10,7 @@ export function LoadingSpinner({
   subtitle = "Preparing your analytics workspace...",
 }: LoadingSpinnerProps) {
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100'>
+    <div className='min-h-screen flex items-center justify-center'>
       <motion.div
         initial={{ opacity: 0, scale: 0.5 }}
         animate={{ opacity: 1, scale: 1 }}

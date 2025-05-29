@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 interface User {
   user_id: string;
@@ -43,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-  const validateToken = async (): Promise<boolean> => {
+  const validateToken = useCallback(async (): Promise<boolean> => {
     const storedToken = localStorage.getItem("auth_token");
     if (!storedToken) {
       return false;
@@ -68,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error("Token validation failed:", error);
       return false;
     }
-  };
+  }, [API_BASE_URL]);
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -102,7 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     initializeAuth();
-  }, []);
+  }, [validateToken]);
 
   const login = async (
     username: string,
