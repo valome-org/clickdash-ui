@@ -57,16 +57,21 @@ export function BarChart({ data }: ChartProps) {
   const transformedData = transformData(data);
   const dataKeys = data.datasets.map((dataset) => dataset.label || "Value");
 
+  // Format numbers properly on the Y-axis
+  const formatYAxisTick = (value: number) => {
+    return value.toLocaleString();
+  };
+
   return (
     <div className='h-full w-full'>
       <ResponsiveContainer width='100%' height='100%'>
         <RechartsBarChart
           data={transformedData}
-          margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+          margin={{ top: 10, right: 30, left: 20, bottom: 0 }}
         >
           <CartesianGrid strokeDasharray='3 3' />
           <XAxis dataKey='name' />
-          <YAxis />
+          <YAxis tickFormatter={formatYAxisTick} width={80} />
           <Tooltip />
           <Legend />
           {dataKeys.map((key, index) => (
@@ -92,16 +97,21 @@ export function LineChart({ data }: ChartProps) {
   const transformedData = transformData(data);
   const dataKeys = data.datasets.map((dataset) => dataset.label || "Value");
 
+  // Format numbers properly on the Y-axis
+  const formatYAxisTick = (value: number) => {
+    return value.toLocaleString();
+  };
+
   return (
     <div className='h-full w-full'>
       <ResponsiveContainer width='100%' height='100%'>
         <RechartsLineChart
           data={transformedData}
-          margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+          margin={{ top: 10, right: 30, left: 20, bottom: 0 }}
         >
           <CartesianGrid strokeDasharray='3 3' />
           <XAxis dataKey='name' />
-          <YAxis />
+          <YAxis tickFormatter={formatYAxisTick} width={80} />
           <Tooltip />
           <Legend />
           {dataKeys.map((key, index) => (
@@ -179,6 +189,11 @@ export function ScatterChart({ data }: ChartProps) {
   const transformedData = transformData(data);
   const dataKeys = data.datasets.map((dataset) => dataset.label || "Value");
 
+  // Format numbers properly on the Y-axis
+  const formatYAxisTick = (value: number) => {
+    return value.toLocaleString();
+  };
+
   return (
     <div className='h-full w-full'>
       <ResponsiveContainer width='100%' height='100%'>
@@ -187,7 +202,12 @@ export function ScatterChart({ data }: ChartProps) {
         >
           <CartesianGrid />
           <XAxis dataKey='name' type='category' />
-          <YAxis dataKey={dataKeys[0]} type='number' />
+          <YAxis
+            dataKey={dataKeys[0]}
+            type='number'
+            tickFormatter={formatYAxisTick}
+            width={80}
+          />
           <Tooltip cursor={{ strokeDasharray: "3 3" }} />
           <Legend />
           <Scatter
@@ -209,16 +229,21 @@ export function AreaChart({ data }: ChartProps) {
   const transformedData = transformData(data);
   const dataKeys = data.datasets.map((dataset) => dataset.label || "Value");
 
+  // Format numbers properly on the Y-axis
+  const formatYAxisTick = (value: number) => {
+    return value.toLocaleString();
+  };
+
   return (
     <div className='h-full w-full'>
       <ResponsiveContainer width='100%' height='100%'>
         <RechartsAreaChart
           data={transformedData}
-          margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+          margin={{ top: 10, right: 30, left: 20, bottom: 0 }}
         >
           <CartesianGrid strokeDasharray='3 3' />
           <XAxis dataKey='name' />
-          <YAxis />
+          <YAxis tickFormatter={formatYAxisTick} width={80} />
           <Tooltip />
           <Legend />
           {dataKeys.map((key, index) => (

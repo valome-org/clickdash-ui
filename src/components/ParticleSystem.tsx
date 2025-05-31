@@ -12,22 +12,25 @@ interface Particle {
 
 export const ParticleSystem = () => {
   const [particles, setParticles] = useState<Particle[]>([]);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
+
     const newParticles: Particle[] = [...Array(50)].map((_, i) => ({
       id: i,
-      x:
-        Math.random() *
-        (typeof window !== "undefined" ? window.innerWidth : 1000),
-      y:
-        Math.random() *
-        (typeof window !== "undefined" ? window.innerHeight : 800),
+      x: Math.random() * (window.innerWidth || 1000),
+      y: Math.random() * (window.innerHeight || 800),
       size: Math.random() * 4 + 1,
       speedX: (Math.random() - 0.5) * 2,
       speedY: (Math.random() - 0.5) * 2,
     }));
     setParticles(newParticles);
   }, []);
+
+  if (!isClient) {
+    return null;
+  }
 
   return (
     <div className='absolute inset-0'>
@@ -40,7 +43,7 @@ export const ParticleSystem = () => {
             y: [particle.y, particle.y + particle.speedY * 100],
           }}
           transition={{
-            duration: Math.random() * 10 + 5,
+            duration: 5 + Math.random() * 10, // Use stable random value per particle
             repeat: Infinity,
             repeatType: "reverse",
           }}
