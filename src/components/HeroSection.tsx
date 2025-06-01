@@ -11,11 +11,12 @@ import {
   Sparkles,
   Zap,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function HeroSection() {
   const [isClient, setIsClient] = useState(false);
-
+  const router = useRouter();
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -95,6 +96,7 @@ export default function HeroSection() {
             transition={{ duration: 1, delay: 0.7 }}
           >
             <motion.button
+              onClick={() => router.push("/login")}
               className='bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white text-xl px-10 py-5 rounded-2xl font-bold hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 transition-all shadow-2xl flex items-center gap-3'
               whileHover={{
                 scale: 1.05,
