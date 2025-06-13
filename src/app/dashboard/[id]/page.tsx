@@ -1,50 +1,50 @@
 "use client";
 
-import { useAuth } from "@/app/contexts/AuthContext";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import ChartsGrid from "../../components/ChartsGrid";
-import DashboardFooter from "../../components/DashboardFooter";
-import DashboardOverview from "../../components/DashboardOverview";
-import EmptyState from "../../components/EmptyState";
-import InsightsSection from "../../components/InsightsSection";
-import KeyMetrics from "../../components/KeyMetrics";
-import { DashboardData } from "../../types/dashboard";
 
-// Import reusable components
+import { ChartsGrid } from "@/components/dashboard/ChartsGrid";
+import { DashboardFooter } from "@/components/dashboard/DashboardFooter";
+import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
+import { EmptyState } from "@/components/dashboard/EmptyState";
+import { InsightsSection } from "@/components/dashboard/InsightsSection";
+import { KeyMetrics } from "@/components/dashboard/KeyMetrics";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ErrorAlert } from "@/components/ui/error-alert";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { PageBackground } from "@/components/ui/page-background";
 import { PageHeader } from "@/components/ui/page-header";
-import { ArrowLeft, Download, LineChart, PieChart, Share2 } from "lucide-react";
+import {
+  ArrowLeft,
+  BarChart3,
+  Download,
+  LineChart,
+  PieChart,
+  Share2,
+} from "lucide-react";
+
+import { useAuth } from "@/app/contexts/AuthContext";
+import { DashboardData } from "@/app/types/dashboard";
+import { API_BASE_URL } from "@/lib/api";
 
 export default function DashboardPage() {
   const params = useParams();
-  const router = useRouter();
-  const dashboardId = params.id as string;
-  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
+  const { token } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { user, token, logout } = useAuth();
+  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
 
   useEffect(() => {
-    if (!user) {
-      router.push("/login");
-      return;
-    }
-
     const fetchDashboard = async () => {
-      if (!token) return;
-
       try {
-        setLoading(true);
-        const backendUrl =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        const dashboardId = Array.isArray(params.id) ? params.id[0] : params.id;
+        if (!dashboardId || !token) {
+          return;
+        }
+
         const response = await fetch(
-          `${backendUrl}/api/dashboard/${dashboardId}`,
+          `${API_BASE_URL}/api/dashboard/${dashboardId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -52,52 +52,85 @@ export default function DashboardPage() {
           }
         );
 
-        if (response.status === 401) {
-          logout();
-          router.push("/login");
-          return;
-        }
-
         if (!response.ok) {
-          throw new Error(`Failed to fetch dashboard: ${response.statusText}`);
+          throw new Error("Failed to fetch dashboard");
         }
 
         const data = await response.json();
-        setDashboard(data);
+        if (data.dashboard_config) {
+          setDashboard(data);
+        } else {
+          setDashboard({
+            dashboard_id: dashboardId,
+            dashboard_config: data,
+            status: "ready",
+          });
+        }
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : "Failed to load dashboard"
+          err instanceof Error
+            ? err.message
+            : "An error occurred while fetching the dashboard"
         );
       } finally {
         setLoading(false);
       }
     };
 
-    if (dashboardId) {
-      fetchDashboard();
-    }
-  }, [dashboardId, user, token, router, logout]);
+    fetchDashboard();
+  }, [params.id, token]);
 
-  if (!user || loading) {
+  if (loading) {
     return (
-      <LoadingSpinner
-        title='Loading Dashboard'
-        subtitle='Preparing your data visualizations...'
-      />
+      <PageBackground>
+        <div className='min-h-[80vh] flex flex-col items-center justify-center'>
+          <LoadingSpinner
+            title='Loading Dashboard'
+            subtitle='Preparing your analytics insights...'
+          />
+        </div>
+      </PageBackground>
     );
   }
 
   if (error || !dashboard) {
     return (
       <PageBackground>
-        <div className='py-8'>
+        <div className='py-8 max-w-4xl mx-auto'>
           <Button asChild variant='outline' className='mb-8'>
             <Link href='/dashboard'>
               <ArrowLeft className='mr-2 h-4 w-4' />
               Back to Dashboards
             </Link>
           </Button>
-          <ErrorAlert message={error || "Dashboard not found"} />
+
+          <Card className='backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-white/20 shadow-2xl'>
+            <CardHeader>
+              <CardTitle className='text-2xl text-red-600'>
+                Dashboard Not Found
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className='flex items-center justify-center flex-col p-8'>
+                <div className='w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4'>
+                  <div className='text-red-600 text-2xl'>!</div>
+                </div>
+                <p className='text-lg text-center mb-4'>
+                  {error || "The requested dashboard could not be found."}
+                </p>
+                <p className='text-muted-foreground text-center mb-6'>
+                  This might be because the dashboard was deleted or you
+                  don&apos;t have permission to view it.
+                </p>
+                <Button asChild>
+                  <Link href='/dashboard'>
+                    <ArrowLeft className='mr-2 h-4 w-4' />
+                    Return to Dashboard List
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </PageBackground>
     );
@@ -157,8 +190,14 @@ export default function DashboardPage() {
 
       {/* Dashboard Overview */}
       <Card className='backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-white/20 shadow-2xl mb-8'>
+        <CardHeader className='pb-0'>
+          <CardTitle className='text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center'>
+            <BarChart3 className='mr-3 h-6 w-6 text-blue-600' />
+            Dashboard Overview
+          </CardTitle>
+        </CardHeader>
         <CardContent className='p-6'>
-          <DashboardOverview charts={dashboard.dashboard_config.charts} />
+          <DashboardOverview dashboard={dashboard.dashboard_config} />
         </CardContent>
       </Card>
 

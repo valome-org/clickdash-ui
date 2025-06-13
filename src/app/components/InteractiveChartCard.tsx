@@ -204,9 +204,14 @@ export default function InteractiveChartCard({
       );
     }
 
+    // Format numbers properly on the Y-axis
+    const formatYAxisTick = (value: number) => {
+      return value.toLocaleString();
+    };
+
     const chartProps = {
       data: transformedData,
-      margin: { top: 20, right: 30, left: 20, bottom: 5 },
+      margin: { top: 20, right: 30, left: 40, bottom: 5 },
     };
 
     try {
@@ -222,7 +227,11 @@ export default function InteractiveChartCard({
                 textAnchor='end'
                 height={60}
               />
-              <YAxis tick={{ fontSize: 12 }} />
+              <YAxis
+                tick={{ fontSize: 12 }}
+                tickFormatter={formatYAxisTick}
+                width={80}
+              />
               <Tooltip content={<CustomTooltip />} />
               <Legend />
               {(chart.data?.datasets || []).map((dataset, i) => (
@@ -242,7 +251,11 @@ export default function InteractiveChartCard({
             <LineChart {...chartProps}>
               <CartesianGrid strokeDasharray='3 3' stroke='#f0f0f0' />
               <XAxis dataKey='name' tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
+              <YAxis
+                tick={{ fontSize: 12 }}
+                tickFormatter={formatYAxisTick}
+                width={80}
+              />
               <Tooltip content={<CustomTooltip />} />
               <Legend />
               {(chart.data?.datasets || []).map((dataset, i) => (
@@ -300,7 +313,11 @@ export default function InteractiveChartCard({
                 textAnchor='end'
                 height={60}
               />
-              <YAxis tick={{ fontSize: 12 }} />
+              <YAxis
+                tick={{ fontSize: 12 }}
+                tickFormatter={formatYAxisTick}
+                width={80}
+              />
               <Tooltip content={<CustomTooltip />} />
               <Legend />
               {(chart.data?.datasets || []).map((dataset, i) => (
