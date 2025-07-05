@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import { ChartsGrid } from "@/components/dashboard/ChartsGrid";
 import { DashboardFooter } from "@/components/dashboard/DashboardFooter";
 import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
-import { EmptyState } from "@/components/dashboard/EmptyState";
 import { InsightsSection } from "@/components/dashboard/InsightsSection";
 import { KeyMetrics } from "@/components/dashboard/KeyMetrics";
 import { Button } from "@/components/ui/button";
@@ -26,7 +25,7 @@ import {
 
 import { useAuth } from "@/app/contexts/AuthContext";
 import { DashboardData } from "@/app/types/dashboard";
-import { API_BASE_URL } from "@/lib/api";
+import { ApiError, dashboardApi } from "@/lib/api";
 
 export default function DashboardPage() {
   const params = useParams();
@@ -43,35 +42,18 @@ export default function DashboardPage() {
           return;
         }
 
-        const response = await fetch(
-          `${API_BASE_URL}/api/dashboard/${dashboardId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch dashboard");
-        }
-
-        const data = await response.json();
-        if (data.dashboard_config) {
-          setDashboard(data);
-        } else {
-          setDashboard({
-            dashboard_id: dashboardId,
-            dashboard_config: data,
-            status: "ready",
-          });
-        }
+        const data = await dashboardApi.getDashboard(dashboardId, token);
+        setDashboard(data);
       } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "An error occurred while fetching the dashboard"
-        );
+        if (err instanceof ApiError) {
+          setError(err.message);
+        } else {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "An error occurred while fetching the dashboard"
+          );
+        }
       } finally {
         setLoading(false);
       }
@@ -222,14 +204,11 @@ export default function DashboardPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className='p-6'>
-          {dashboard.dashboard_config.charts.length > 0 ? (
-            <ChartsGrid charts={dashboard.dashboard_config.charts} />
-          ) : (
-            <EmptyState />
-          )}
+          <ChartsGrid charts={dashboard.dashboard_config.charts} />
         </CardContent>
       </Card>
 
+      {/* Footer */}
       <DashboardFooter />
     </PageBackground>
   );

@@ -26,8 +26,7 @@ import {
   CategorySelection,
   VisualizationOptions,
 } from "@/components/upload";
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
+import { ApiError, uploadApi } from "@/lib/api";
 
 interface NextStep {
   title: string;
@@ -57,7 +56,7 @@ export default function UploadPage() {
   };
 
   const handleUpload = async () => {
-    if (!file || !category) {
+    if (!file || !category || !token) {
       setError("Please select a file and category");
       return;
     }
@@ -74,36 +73,14 @@ export default function UploadPage() {
     }, 300);
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append(
-        "category",
-        category === "other" ? customCategory : category
-      );
-      formData.append("chart_types", chartTypes.join(","));
-      formData.append("number_of_charts", numberOfCharts);
-      formData.append("description", description);
+      const data = await uploadApi.uploadFile({
+        file,
+        category: category === "other" ? customCategory : category,
+        chart_types: chartTypes,
+        number_of_charts: numberOfCharts,
+        description,
+      }, token);
 
-      const response = await fetch(`${API_BASE_URL}/api/upload`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      if (response.status === 401) {
-        logout();
-        router.push("/login");
-        return;
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || "Upload failed");
-      }
-
-      const data = await response.json();
       clearInterval(progressInterval);
       setUploadProgress(100);
 
@@ -112,7 +89,18 @@ export default function UploadPage() {
       }, 500);
     } catch (err) {
       clearInterval(progressInterval);
-      setError(err instanceof Error ? err.message : "Upload failed");
+
+      if (err instanceof ApiError) {
+        if (err.status === 401) {
+          logout();
+          router.push("/login");
+          return;
+        }
+        setError(err.message);
+      } else {
+        setError(err instanceof Error ? err.message : "Upload failed");
+      }
+
       setIsUploading(false);
       setUploadProgress(0);
     }

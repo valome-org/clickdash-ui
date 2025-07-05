@@ -5,13 +5,6 @@ import { useAuth } from "@/app/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -43,6 +36,7 @@ import { ErrorAlert } from "@/components/ui/error-alert";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { PageBackground } from "@/components/ui/page-background";
 import { PageHeader } from "@/components/ui/page-header";
+import { ApiError, dashboardApi } from "@/lib/api";
 
 interface Dashboard {
   dashboard_id: string;
@@ -68,39 +62,29 @@ export default function DashboardPage() {
   const { user, token, logout, isAuthenticated } = useAuth();
   const router = useRouter();
 
-  const API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
   const fetchDashboards = useCallback(async () => {
     if (!token) return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/dashboards/my`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.status === 401) {
-        logout();
-        router.push("/login");
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch dashboards");
-      }
-
-      const data = await response.json();
+      const data = await dashboardApi.getDashboards(token);
       setDashboards(data.dashboards || []);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to fetch dashboards"
-      );
+      if (err instanceof ApiError) {
+        if (err.status === 401) {
+          logout();
+          router.push("/login");
+          return;
+        }
+        setError(err.message);
+      } else {
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch dashboards"
+        );
+      }
     } finally {
       setIsLoading(false);
     }
-  }, [token, logout, router, API_BASE_URL]);
+  }, [token, logout, router]);
 
   useEffect(() => {
     // Only redirect if we're sure the user is not authenticated
@@ -120,25 +104,16 @@ export default function DashboardPage() {
       return;
 
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/dashboard/${dashboardId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        setDashboards(dashboards.filter((d) => d.dashboard_id !== dashboardId));
-      } else {
-        throw new Error("Failed to delete dashboard");
-      }
+      await dashboardApi.deleteDashboard(dashboardId, token);
+      setDashboards(dashboards.filter((d) => d.dashboard_id !== dashboardId));
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to delete dashboard"
-      );
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else {
+        setError(
+          err instanceof Error ? err.message : "Failed to delete dashboard"
+        );
+      }
     }
   };
 
@@ -262,148 +237,140 @@ export default function DashboardPage() {
               : "Your Dashboard Journey Begins"}
           </h3>
 
-          <p className='text-lg text-muted-foreground mb-8 max-w-md mx-auto'>
+          <p className='text-xl text-muted-foreground mb-8 max-w-2xl mx-auto'>
             {searchTerm
-              ? "Try adjusting your search terms or create a new dashboard."
-              : "Transform your data into beautiful insights. Upload your first Excel file and watch the magic happen!"}
+              ? `We couldn't find any dashboards matching "${searchTerm}". Try adjusting your search terms or explore your other dashboards.`
+              : "Ready to turn your data into insights? Create your first dashboard and discover the power of AI-driven analytics."}
           </p>
 
-          <Button
-            asChild
-            size='lg'
-            className='bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-xl'
-          >
-            <Link href='/upload'>
-              <Plus className='mr-2 h-4 w-4' />
-              Create Your First Dashboard
-            </Link>
-          </Button>
+          <div className='flex flex-col sm:flex-row gap-4 justify-center'>
+            <Button
+              asChild
+              size='lg'
+              className='bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg'
+            >
+              <Link href='/upload'>
+                <Plus className='mr-2 h-4 w-4' />
+                Create Your First Dashboard
+              </Link>
+            </Button>
+            {searchTerm && (
+              <Button
+                onClick={() => setSearchTerm("")}
+                variant='outline'
+                size='lg'
+                className='backdrop-blur-sm bg-white/50 border-white/30 shadow-lg'
+              >
+                Clear Search
+              </Button>
+            )}
+          </div>
         </div>
       ) : (
-        <div>
-          <BentoGrid className='max-w-none'>
+        <div className='container mx-auto px-4 max-w-7xl'>
+          <BentoGrid className='auto-rows-[18rem] grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
             {filteredAndSortedDashboards.map((dashboard, index) => (
-              <div
+              <BentoGridItem
                 key={dashboard.dashboard_id}
-                className={index === 0 ? "md:col-span-2" : ""}
+                className={`group relative overflow-hidden backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-white/20 shadow-2xl hover:shadow-3xl transition-all duration-300 ${
+                  index === 0 ? "md:col-span-2" : ""
+                }`}
               >
-                <BentoGridItem
-                  className='backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 group'
-                  title={
-                    <div className='flex items-center justify-between'>
-                      <span className='text-lg font-bold group-hover:text-blue-600 transition-colors'>
-                        {dashboard.dashboard_config.title}
-                      </span>
-                      <Badge
-                        variant={
-                          dashboard.status === "ready" ? "default" : "secondary"
-                        }
-                        className='ml-2'
-                      >
-                        {dashboard.status === "ready"
-                          ? "🟢 Ready"
-                          : "🟡 Processing"}
-                      </Badge>
-                    </div>
-                  }
-                  description={
-                    <div className='space-y-3'>
-                      <p className='text-sm text-muted-foreground line-clamp-2'>
-                        {dashboard.dashboard_config.summary}
-                      </p>
-
-                      <div className='flex items-center justify-between text-xs text-muted-foreground'>
-                        <div className='flex items-center space-x-4'>
-                          <div className='flex items-center'>
-                            <FileText className='h-3 w-3 mr-1' />
-                            {dashboard.dashboard_config.charts.length} charts
-                          </div>
-                          <div className='flex items-center'>
-                            <Calendar className='h-3 w-3 mr-1' />
-                            {new Date(
-                              dashboard.created_at
-                            ).toLocaleDateString()}
-                          </div>
+                <div className='flex flex-col h-full p-6'>
+                  {/* Header */}
+                  <div className='flex items-start justify-between mb-4'>
+                    <div className='flex-1'>
+                      <div className='flex items-center gap-2 mb-2'>
+                        <Badge
+                          variant='outline'
+                          className='bg-blue-100 text-blue-700 border-blue-300'
+                        >
+                          {dashboard.status}
+                        </Badge>
+                        <div className='flex items-center text-sm text-muted-foreground'>
+                          <Calendar className='h-3 w-3 mr-1' />
+                          {new Date(dashboard.created_at).toLocaleDateString()}
                         </div>
                       </div>
+                      <h3 className='text-xl font-bold mb-2 line-clamp-2'>
+                        {dashboard.dashboard_config.title}
+                      </h3>
+                      <p className='text-sm text-muted-foreground mb-4 line-clamp-3'>
+                        {dashboard.dashboard_config.summary}
+                      </p>
+                    </div>
+                    <Button
+                      onClick={() => deleteDashboard(dashboard.dashboard_id)}
+                      variant='ghost'
+                      size='sm'
+                      className='opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600'
+                    >
+                      <Trash2 className='h-4 w-4' />
+                    </Button>
+                  </div>
 
-                      <div className='flex space-x-2 pt-2'>
-                        <Button asChild className='flex-1' size='sm'>
-                          <Link href={`/dashboard/${dashboard.dashboard_id}`}>
-                            <TrendingUp className='mr-2 h-3 w-3' />
-                            View Dashboard
-                          </Link>
-                        </Button>
-                        <Button
-                          onClick={() =>
-                            deleteDashboard(dashboard.dashboard_id)
-                          }
-                          variant='outline'
-                          size='sm'
-                          className='text-red-600 hover:text-red-700 hover:bg-red-50'
-                        >
-                          <Trash2 className='h-3 w-3' />
-                        </Button>
+                  {/* Stats */}
+                  <div className='grid grid-cols-2 gap-4 mb-4 text-sm'>
+                    <div className='flex items-center gap-2'>
+                      <div className='h-8 w-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center'>
+                        <BarChart3 className='h-4 w-4 text-white' />
+                      </div>
+                      <div>
+                        <p className='text-muted-foreground'>Charts</p>
+                        <p className='font-semibold'>
+                          {dashboard.dashboard_config.charts?.length || 0}
+                        </p>
                       </div>
                     </div>
-                  }
-                  header={
-                    <div className='w-full h-20 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-lg flex items-center justify-center group-hover:from-blue-400/30 group-hover:to-purple-600/30 transition-all duration-300'>
-                      <Layers3 className='h-8 w-8 text-blue-600 group-hover:scale-110 transition-transform' />
+
+                    <div className='flex items-center gap-2'>
+                      <div className='h-8 w-8 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center'>
+                        <TrendingUp className='h-4 w-4 text-white' />
+                      </div>
+                      <div>
+                        <p className='text-muted-foreground'>Metrics</p>
+                        <p className='font-semibold'>
+                          {dashboard.dashboard_config.key_metrics?.length || 0}
+                        </p>
+                      </div>
                     </div>
-                  }
-                />
-              </div>
+                  </div>
+
+                  {/* Key Metrics Preview */}
+                  {dashboard.dashboard_config.key_metrics?.length > 0 && (
+                    <div className='flex flex-wrap gap-2 mb-4'>
+                      {dashboard.dashboard_config.key_metrics
+                        .slice(0, 3)
+                        .map((metric: any, idx: number) => (
+                          <div
+                            key={idx}
+                            className='flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-blue-50 to-purple-50 rounded-full text-xs border border-blue-200'
+                          >
+                            <Layers3 className='h-3 w-3 text-blue-600' />
+                            <span className='font-medium text-blue-700'>
+                              {metric.metric}
+                            </span>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+
+                  {/* Actions */}
+                  <div className='mt-auto flex gap-2'>
+                    <Button
+                      asChild
+                      className='flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg'
+                    >
+                      <Link href={`/dashboard/${dashboard.dashboard_id}`}>
+                        <FileText className='mr-2 h-4 w-4' />
+                        View Dashboard
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              </BentoGridItem>
             ))}
           </BentoGrid>
-        </div>
-      )}
-
-      {/* Statistics */}
-      {dashboards.length > 0 && (
-        <div className='mt-44'>
-          <Card className='backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-white/20 shadow-2xl'>
-            <CardHeader>
-              <CardTitle className='text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center'>
-                <BarChart3 className='mr-3 h-6 w-6 text-blue-600' />
-                Analytics Overview
-              </CardTitle>
-              <CardDescription>
-                Your dashboard ecosystem at a glance
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-                <div className='text-center p-6 rounded-2xl bg-gradient-to-br from-blue-500/10 to-blue-600/20 border border-blue-200/50'>
-                  <div className='text-4xl font-bold text-blue-600 mb-2'>
-                    {dashboards.length}
-                  </div>
-                  <div className='text-sm text-muted-foreground font-medium'>
-                    Total Dashboards
-                  </div>
-                </div>
-                <div className='text-center p-6 rounded-2xl bg-gradient-to-br from-green-500/10 to-green-600/20 border border-green-200/50'>
-                  <div className='text-4xl font-bold text-green-600 mb-2'>
-                    {dashboards.reduce(
-                      (sum, d) => sum + d.dashboard_config.charts.length,
-                      0
-                    )}
-                  </div>
-                  <div className='text-sm text-muted-foreground font-medium'>
-                    Total Charts
-                  </div>
-                </div>
-                <div className='text-center p-6 rounded-2xl bg-gradient-to-br from-purple-500/10 to-purple-600/20 border border-purple-200/50'>
-                  <div className='text-4xl font-bold text-purple-600 mb-2'>
-                    {dashboards.filter((d) => d.status === "ready").length}
-                  </div>
-                  <div className='text-sm text-muted-foreground font-medium'>
-                    Ready Dashboards
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       )}
     </PageBackground>
