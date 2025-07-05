@@ -1,82 +1,49 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { ArrowRight, Sparkles, Upload } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
 import { useAuth } from "@/app/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { ErrorAlert } from "@/components/ui/error-alert";
 import { FileUpload } from "@/components/ui/file-upload";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { PageBackground } from "@/components/ui/page-background";
 import { PageHeader } from "@/components/ui/page-header";
 import { Progress } from "@/components/ui/progress";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Separator } from "@/components/ui/separator";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
-import {
-  ArrowRight,
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  LineChart,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+  AdditionalDetails,
+  CategorySelection,
+  VisualizationOptions,
+} from "@/components/upload";
 
-// API base URL configuration
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
+
+interface NextStep {
+  title: string;
+  description: string;
+}
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [activeStep, setActiveStep] = useState(0);
-
-  // New form fields for enhanced generation
   const [category, setCategory] = useState<string>("");
+  const [customCategory, setCustomCategory] = useState<string>("");
   const [chartTypes, setChartTypes] = useState<string[]>([]);
   const [numberOfCharts, setNumberOfCharts] = useState<string>("3");
   const [description, setDescription] = useState<string>("");
-
-  // Chart type options
-  const chartTypeOptions = [
-    { value: "bar", label: "Bar Chart" },
-    { value: "line", label: "Line Chart" },
-    { value: "pie", label: "Pie Chart" },
-    { value: "scatter", label: "Scatter Plot" },
-    { value: "area", label: "Area Chart" },
-    { value: "doughnut", label: "Doughnut Chart" },
-    { value: "radar", label: "Radar Chart" },
-    { value: "heatmap", label: "Heatmap" },
-  ];
-
-  // Category options
-  const categoryOptions = [
-    { value: "finance", label: "Finance & Accounting" },
-    { value: "sales", label: "Sales & Marketing" },
-    { value: "operations", label: "Operations & Logistics" },
-    { value: "hr", label: "Human Resources" },
-    { value: "product", label: "Product & Inventory" },
-    { value: "customer", label: "Customer Data" },
-    { value: "research", label: "Research & Development" },
-    { value: "other", label: "Other" },
-  ];
 
   const { user, token, logout } = useAuth();
   const router = useRouter();
@@ -85,24 +52,20 @@ export default function UploadPage() {
     setError(message);
   };
 
-  const toggleChartType = (type: string) => {
-    if (chartTypes.includes(type)) {
-      setChartTypes(chartTypes.filter((t) => t !== type));
-    } else {
-      setChartTypes([...chartTypes, type]);
-    }
+  const isFormValid = (): boolean => {
+    return !!file && !!category;
   };
 
   const handleUpload = async () => {
-    if (!file) {
-      setError("Please select a file to upload");
+    if (!file || !category) {
+      setError("Please select a file and category");
       return;
     }
 
     setIsUploading(true);
     setError(null);
 
-    // Simulate progress for better UX
+    // Simple progress simulation
     let progress = 0;
     const progressInterval = setInterval(() => {
       progress += Math.random() * 10;
@@ -113,9 +76,10 @@ export default function UploadPage() {
     try {
       const formData = new FormData();
       formData.append("file", file);
-
-      // Add the enhanced generation options
-      formData.append("category", category);
+      formData.append(
+        "category",
+        category === "other" ? customCategory : category
+      );
       formData.append("chart_types", chartTypes.join(","));
       formData.append("number_of_charts", numberOfCharts);
       formData.append("description", description);
@@ -140,67 +104,43 @@ export default function UploadPage() {
       }
 
       const data = await response.json();
-
-      // Complete progress
       clearInterval(progressInterval);
       setUploadProgress(100);
 
-      // Wait a bit to show 100% before redirecting
       setTimeout(() => {
-        // Redirect to the new dashboard
         router.push(`/dashboard/${data.dashboard_id}`);
       }, 500);
     } catch (err) {
       clearInterval(progressInterval);
       setError(err instanceof Error ? err.message : "Upload failed");
-    } finally {
-      if (!error) {
-        setTimeout(() => {
-          setIsUploading(false);
-          setUploadProgress(0);
-        }, 500);
-      } else {
-        setIsUploading(false);
-        setUploadProgress(0);
-      }
+      setIsUploading(false);
+      setUploadProgress(0);
     }
   };
 
-  const nextStep = () => {
-    setActiveStep((prev) => Math.min(prev + 1, 3));
-  };
-
-  const prevStep = () => {
-    setActiveStep((prev) => Math.max(prev - 1, 0));
-  };
-
-  // Check if the current step is valid
-  const isStepValid = () => {
-    switch (activeStep) {
-      case 0:
-        return !!file;
-      case 1:
-        return !!category;
-      case 2:
-        return chartTypes.length > 0 && !!numberOfCharts;
-      case 3:
-        return true; // Description is optional
-      default:
-        return false;
-    }
-  };
-
-  // The steps for "What happens next" section
-  const steps = [
-    { title: "Your Excel file is securely uploaded and analyzed" },
-    { title: "Our AI identifies patterns and creates relevant visualizations" },
-    { title: "You get an interactive dashboard with insights and charts" },
+  const nextSteps: NextStep[] = [
+    {
+      title: "Your Excel file is securely uploaded and analyzed",
+      description: "Our AI engine analyzes your data structure and content",
+    },
+    {
+      title: "AI identifies patterns and creates relevant visualizations",
+      description: "Machine learning algorithms detect insights and trends",
+    },
+    {
+      title: "You get an interactive dashboard with insights and charts",
+      description:
+        "Explore your data through beautiful, interactive visualizations",
+    },
   ];
 
   if (!user) {
-    return <LoadingSpinner />;
+    return (
+      <div className='flex items-center justify-center min-h-screen'>
+        <LoadingSpinner />
+      </div>
+    );
   }
-
   return (
     <PageBackground>
       <div className='py-12'>
@@ -210,330 +150,146 @@ export default function UploadPage() {
           description='Upload your Excel file and get AI-powered visualizations in seconds'
         />
 
-        <div className='max-w-3xl mx-auto'>
+        <div className='max-w-4xl mx-auto'>
           <Card className='backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-white/20 shadow-2xl overflow-hidden'>
-            {/* Multi-step form header */}
-            <div className='px-6 pt-6 mx-auto'>
-              <div className='flex items-center justify-between mb-4'>
-                <div className='flex items-center space-x-2'>
-                  <div
-                    className={cn(
-                      "w-8 h-8 rounded-full flex items-center justify-center",
-                      activeStep >= 0
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-200 text-gray-500"
-                    )}
-                  >
-                    {activeStep > 0 ? <Check className='h-4 w-4' /> : "1"}
-                  </div>
-                  <div
-                    className={cn(
-                      "h-1 w-8",
-                      activeStep >= 1 ? "bg-blue-600" : "bg-gray-200"
-                    )}
-                  ></div>
-                  <div
-                    className={cn(
-                      "w-8 h-8 rounded-full flex items-center justify-center",
-                      activeStep >= 1
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-200 text-gray-500"
-                    )}
-                  >
-                    {activeStep > 1 ? <Check className='h-4 w-4' /> : "2"}
-                  </div>
-                  <div
-                    className={cn(
-                      "h-1 w-8",
-                      activeStep >= 2 ? "bg-blue-600" : "bg-gray-200"
-                    )}
-                  ></div>
-                  <div
-                    className={cn(
-                      "w-8 h-8 rounded-full flex items-center justify-center",
-                      activeStep >= 2
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-200 text-gray-500"
-                    )}
-                  >
-                    {activeStep > 2 ? <Check className='h-4 w-4' /> : "3"}
-                  </div>
-                  <div
-                    className={cn(
-                      "h-1 w-8",
-                      activeStep >= 3 ? "bg-blue-600" : "bg-gray-200"
-                    )}
-                  ></div>
-                  <div
-                    className={cn(
-                      "w-8 h-8 rounded-full flex items-center justify-center",
-                      activeStep >= 3
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-200 text-gray-500"
-                    )}
-                  >
-                    {activeStep > 3 ? <Check className='h-4 w-4' /> : "4"}
-                  </div>
-                </div>
-              </div>
-
-              <div className='text-sm text-muted-foreground'>
-                Step {activeStep + 1} of 4:
-                {activeStep === 0 && " Upload your Excel file"}
-                {activeStep === 1 && " Select data category"}
-                {activeStep === 2 && " Choose visualization options"}
-                {activeStep === 3 && " Add details & generate"}
-              </div>
-            </div>
-
-            <CardContent className='p-6'>
+            <CardContent className='p-8 space-y-8'>
               {error && <ErrorAlert message={error} />}
 
-              {/* Step 1: File Upload */}
-              {activeStep === 0 && (
-                <div>
-                  <CardHeader className='text-center px-0 pt-0'>
-                    <CardTitle className='text-xl font-bold text-blue-700'>
-                      Upload Your Excel File
-                    </CardTitle>
-                    <CardDescription>
-                      Select an Excel file to analyze and visualize
-                    </CardDescription>
-                  </CardHeader>
+              {/* File Upload Section */}
+              <div>
+                <h3 className='text-lg font-semibold mb-4 flex items-center'>
+                  <Upload className='h-5 w-5 mr-2 text-blue-600' />
+                  Excel File
+                </h3>
+                <FileUpload
+                  onChange={setFile}
+                  file={file}
+                  disabled={isUploading}
+                  onValidationError={handleFileValidationError}
+                />
+              </div>
 
-                  <FileUpload
-                    onChange={setFile}
-                    file={file}
-                    disabled={isUploading}
-                    onValidationError={handleFileValidationError}
-                  />
-                </div>
-              )}
+              <Separator />
 
-              {/* Step 2: Data Category */}
-              {activeStep === 1 && (
-                <div>
-                  <CardHeader className='text-center px-0 pt-0'>
-                    <CardTitle className='text-xl font-bold text-blue-700'>
-                      Select Data Category
-                    </CardTitle>
-                    <CardDescription>
-                      Help us understand what type of data you are analyzing
-                    </CardDescription>
-                  </CardHeader>
+              {/* Category Selection */}
+              <div>
+                <h3 className='text-lg font-semibold mb-4 flex items-center'>
+                  <Sparkles className='h-5 w-5 mr-2 text-purple-600' />
+                  Data Category
+                </h3>
+                <CategorySelection
+                  category={category}
+                  onCategoryChange={setCategory}
+                  customCategory={customCategory}
+                  onCustomCategoryChange={setCustomCategory}
+                  disabled={isUploading}
+                />
+              </div>
 
-                  <div className='space-y-4'>
-                    <Select value={category} onValueChange={setCategory}>
-                      <SelectTrigger>
-                        <SelectValue placeholder='Select a category' />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categoryOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+              <Separator />
 
-                    {category === "other" && (
-                      <div className='mt-4'>
-                        <Label htmlFor='custom-category'>
-                          Specify Category
-                        </Label>
-                        <Input
-                          id='custom-category'
-                          placeholder='Describe your data category'
-                          className='mt-1'
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
+              {/* Visualization Options */}
+              <div>
+                <h3 className='text-lg font-semibold mb-4 flex items-center'>
+                  <ArrowRight className='h-5 w-5 mr-2 text-green-600' />
+                  Visualization Preferences
+                </h3>
+                <VisualizationOptions
+                  chartTypes={chartTypes}
+                  onChartTypesChange={setChartTypes}
+                  numberOfCharts={numberOfCharts}
+                  onNumberOfChartsChange={setNumberOfCharts}
+                  disabled={isUploading}
+                />
+              </div>
 
-              {/* Step 3: Visualization Options */}
-              {activeStep === 2 && (
-                <div>
-                  <CardHeader className='text-center px-0 pt-0'>
-                    <CardTitle className='text-xl font-bold text-blue-700'>
-                      Choose Visualization Options
-                    </CardTitle>
-                    <CardDescription>
-                      Select chart types and how many charts to generate
-                    </CardDescription>
-                  </CardHeader>
+              <Separator />
 
-                  <div className='space-y-6'>
-                    <div>
-                      <Label className='text-base font-medium mb-2 block'>
-                        Chart Types (select multiple)
-                      </Label>
-                      <div className='grid grid-cols-2 md:grid-cols-3 gap-2'>
-                        {chartTypeOptions.map((option) => (
-                          <Button
-                            key={option.value}
-                            type='button'
-                            variant={
-                              chartTypes.includes(option.value)
-                                ? "default"
-                                : "outline"
-                            }
-                            className='justify-start'
-                            onClick={() => toggleChartType(option.value)}
-                          >
-                            <LineChart className='h-4 w-4 mr-2' />
-                            {option.label}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
+              {/* Additional Details */}
+              <div>
+                <h3 className='text-lg font-semibold mb-4'>
+                  Additional Context
+                </h3>
+                <AdditionalDetails
+                  description={description}
+                  onDescriptionChange={setDescription}
+                  disabled={isUploading}
+                />
+              </div>
 
-                    <div>
-                      <Label className='text-base font-medium mb-2 block'>
-                        Number of Charts
-                      </Label>
-                      <RadioGroup
-                        value={numberOfCharts}
-                        onValueChange={setNumberOfCharts}
-                        className='grid grid-cols-3 gap-2'
-                      >
-                        <div>
-                          <RadioGroupItem
-                            value='3'
-                            id='charts-3'
-                            className='peer sr-only'
-                          />
-                          <Label
-                            htmlFor='charts-3'
-                            className='flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary'
-                          >
-                            <span>3</span>
-                          </Label>
-                        </div>
-
-                        <div>
-                          <RadioGroupItem
-                            value='4'
-                            id='charts-4'
-                            className='peer sr-only'
-                          />
-                          <Label
-                            htmlFor='charts-4'
-                            className='flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary'
-                          >
-                            <span>4</span>
-                          </Label>
-                        </div>
-
-                        <div>
-                          <RadioGroupItem
-                            value='5'
-                            id='charts-5'
-                            className='peer sr-only'
-                          />
-                          <Label
-                            htmlFor='charts-5'
-                            className='flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary'
-                          >
-                            <span>5</span>
-                          </Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Step 4: Additional Details */}
-              {activeStep === 3 && (
-                <div>
-                  <CardHeader className='text-center px-0 pt-0'>
-                    <CardTitle className='text-xl font-bold text-blue-700'>
-                      Additional Details
-                    </CardTitle>
-                    <CardDescription>
-                      Provide more context about your data to improve results
-                      (optional)
-                    </CardDescription>
-                  </CardHeader>
-
-                  <div className='space-y-4'>
-                    <Label htmlFor='description'>Data Description</Label>
-                    <Textarea
-                      id='description'
-                      placeholder="Describe what your data represents, what insights you're looking for, or any specific aspects you want to highlight..."
-                      rows={5}
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                    />
-                  </div>
-                </div>
-              )}
-
+              {/* Upload Progress */}
               {isUploading && (
-                <div className='mt-4'>
-                  <Progress value={uploadProgress} className='h-2' />
-                  <p className='text-xs text-center mt-2 text-muted-foreground'>
+                <div className='mt-6 space-y-4'>
+                  <div className='flex items-center justify-between'>
+                    <span className='text-sm font-medium text-muted-foreground'>
+                      Processing your file...
+                    </span>
+                    <span className='text-sm font-bold text-primary'>
+                      {uploadProgress} %
+                    </span>
+                  </div>
+                  <Progress value={uploadProgress} className='h-3' />
+                  <p className='text-sm text-center text-muted-foreground'>
                     {uploadProgress < 100
-                      ? `Processing... ${uploadProgress}%`
-                      : "Redirecting to dashboard..."}
+                      ? "Analyzing your data and generating insights..."
+                      : "Almost ready! Redirecting to your dashboard..."}
                   </p>
                 </div>
               )}
-            </CardContent>
 
-            <CardFooter className='flex justify-between p-6 pt-0'>
-              {activeStep > 0 && (
-                <Button
-                  variant='outline'
-                  onClick={prevStep}
-                  disabled={isUploading}
-                >
-                  <ChevronLeft className='h-4 w-4 mr-2' />
-                  Back
-                </Button>
-              )}
-
-              {activeStep < 3 ? (
-                <Button
-                  onClick={nextStep}
-                  disabled={!isStepValid() || isUploading}
-                  className={activeStep === 0 ? "ml-auto" : ""}
-                >
-                  Next
-                  <ChevronRight className='h-4 w-4 ml-2' />
-                </Button>
-              ) : (
+              {/* Submit Button */}
+              <div className='flex justify-center pt-4'>
                 <Button
                   onClick={handleUpload}
-                  disabled={isUploading}
-                  className='ml-auto'
+                  disabled={!isFormValid() || isUploading}
+                  size='lg'
+                  className='bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg font-semibold shadow-lg transition-all duration-200 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed'
                 >
-                  Generate Dashboard
-                  <ArrowRight className='h-4 w-4 ml-2' />
+                  {isUploading ? (
+                    <>
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{
+                          duration: 1,
+                          repeat: Infinity,
+                          ease: "linear",
+                        }}
+                        className='mr-2 h-5 w-5 border-2 border-white/30 border-t-white rounded-full'
+                      />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      Generate Dashboard
+                      <ArrowRight className='h-5 w-5 ml-2' />
+                    </>
+                  )}
                 </Button>
-              )}
-            </CardFooter>
+              </div>
+            </CardContent>
           </Card>
 
-          <div className='mt-12'>
-            <h2 className='text-2xl font-bold text-center mb-8 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent'>
-              What Happens Next?
+          {/* What Happens Next Section */}
+          <div className='mt-16'>
+            <h2 className='text-3xl font-bold text-center mb-12 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent'>
+              What Happens Next ?
             </h2>
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-              {steps.map((step, index) => (
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
+              {nextSteps.map((step, index) => (
                 <Card
                   key={index}
-                  className='backdrop-blur-sm bg-white/50 border-white/20 shadow-lg'
+                  className='backdrop-blur-sm bg-white/50 dark:bg-slate-900/50 border-white/20 shadow-lg hover:shadow-xl transition-shadow duration-300'
                 >
-                  <CardHeader>
-                    <div className='w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mb-2'>
-                      <span className='text-blue-700 dark:text-blue-300 font-bold'>
+                  <CardHeader className='text-center'>
+                    <div className='w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-4 mx-auto'>
+                      <span className='text-white font-bold text-lg'>
                         {index + 1}
                       </span>
                     </div>
-                    <CardTitle className='text-lg'>{step.title}</CardTitle>
+                    <CardTitle className='text-xl mb-2'>{step.title}</CardTitle>
+                    <CardDescription className='text-base'>
+                      {step.description}
+                    </CardDescription>
                   </CardHeader>
                 </Card>
               ))}
