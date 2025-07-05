@@ -1,6 +1,7 @@
 "use client";
 
 import FloatingElement from "@/components/FloatingElement";
+import { ROUTES } from "@/lib/routes";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -96,7 +97,7 @@ export default function HeroSection() {
             transition={{ duration: 1, delay: 0.7 }}
           >
             <motion.button
-              onClick={() => router.push("/login")}
+              onClick={() => router.push(ROUTES.LOGIN)}
               className='bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white text-xl px-10 py-5 rounded-2xl font-bold hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 transition-all shadow-2xl flex items-center gap-3'
               whileHover={{
                 scale: 1.05,
@@ -150,115 +151,85 @@ export default function HeroSection() {
                 </div>
 
                 {/* Dashboard Content */}
-                <div className='grid grid-cols-2 gap-4 h-80'>
-                  <motion.div
-                    className='bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-4 flex flex-col justify-between'
-                    animate={{ scale: [1, 1.02, 1] }}
-                    transition={{ duration: 3, repeat: Infinity }}
-                  >
-                    <div className='flex items-center gap-2 mb-3'>
-                      <BarChart3 className='w-6 h-6 text-blue-600' />
-                      <span className='text-blue-800 font-semibold'>Sales</span>
+                <div className='space-y-6'>
+                  <div className='flex items-center gap-3 mb-4'>
+                    <div className='w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center'>
+                      <BarChart3 className='w-5 h-5 text-blue-600' />
                     </div>
-                    <div className='space-y-2'>
-                      <motion.div
-                        className='h-3 bg-blue-300 rounded-full'
-                        animate={{ width: ["60%", "80%", "60%"] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      />
-                      <motion.div
-                        className='h-3 bg-blue-400 rounded-full'
-                        animate={{ width: ["40%", "70%", "40%"] }}
-                        transition={{ duration: 2.5, repeat: Infinity }}
-                      />
-                      <motion.div
-                        className='h-3 bg-blue-500 rounded-full'
-                        animate={{ width: ["70%", "90%", "70%"] }}
-                        transition={{ duration: 1.8, repeat: Infinity }}
-                      />
+                    <div>
+                      <div className='font-semibold text-gray-800'>
+                        Sales Overview
+                      </div>
+                      <div className='text-sm text-gray-500'>
+                        Monthly Performance
+                      </div>
                     </div>
-                  </motion.div>
+                  </div>
 
-                  <motion.div
-                    className='bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-4'
-                    animate={{ scale: [1, 1.02, 1] }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      delay: 0.5,
-                    }}
-                  >
-                    <div className='flex items-center gap-2 mb-3'>
-                      <PieChart className='w-6 h-6 text-purple-600' />
-                      <span className='text-purple-800 font-semibold'>
-                        Analytics
-                      </span>
+                  <div className='grid grid-cols-3 gap-4'>
+                    <div className='bg-blue-50 rounded-lg p-4 text-center'>
+                      <div className='text-2xl font-bold text-blue-600'>
+                        $42K
+                      </div>
+                      <div className='text-sm text-gray-600'>Revenue</div>
                     </div>
-                    <div className='flex items-center justify-center h-24'>
-                      <motion.div
-                        className='w-20 h-20 rounded-full bg-gradient-to-r from-purple-400 to-pink-500'
-                        animate={{ rotate: [0, 360] }}
-                        transition={{
-                          duration: 4,
-                          repeat: Infinity,
-                          ease: "linear",
-                        }}
-                      />
+                    <div className='bg-green-50 rounded-lg p-4 text-center'>
+                      <div className='text-2xl font-bold text-green-600'>
+                        +18%
+                      </div>
+                      <div className='text-sm text-gray-600'>Growth</div>
                     </div>
-                  </motion.div>
+                    <div className='bg-purple-50 rounded-lg p-4 text-center'>
+                      <div className='text-2xl font-bold text-purple-600'>
+                        234
+                      </div>
+                      <div className='text-sm text-gray-600'>Orders</div>
+                    </div>
+                  </div>
 
-                  <motion.div
-                    className='bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-4 col-span-2'
-                    animate={{ scale: [1, 1.02, 1] }}
-                    transition={{ duration: 3, repeat: Infinity, delay: 1 }}
-                  >
-                    <div className='flex items-center gap-2 mb-3'>
-                      <LineChart className='w-6 h-6 text-green-600' />
-                      <span className='text-green-800 font-semibold'>
-                        Growth Trends
-                      </span>
+                  <div className='flex gap-4 items-center'>
+                    <div className='flex-1 bg-gray-100 rounded-lg p-4'>
+                      <div className='flex items-center gap-2 mb-2'>
+                        <LineChart className='w-4 h-4 text-blue-600' />
+                        <span className='text-sm font-medium'>Trend Line</span>
+                      </div>
+                      <div className='h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded opacity-70'></div>
                     </div>
-                    <div className='h-20 flex items-end justify-around'>
-                      {[...Array(8)].map((_, i) => (
-                        <motion.div
-                          key={i}
-                          className='bg-green-400 rounded-t-lg'
-                          style={{ width: "8px" }}
-                          {...(isClient
-                            ? {
-                                animate: {
-                                  height: [
-                                    `${20 + i * 5}px`,
-                                    `${30 + i * 4}px`,
-                                    `${20 + i * 5}px`,
-                                  ],
-                                },
-                                transition: {
-                                  duration: 2 + i * 0.2,
-                                  repeat: Infinity,
-                                  repeatType: "reverse",
-                                },
-                              }
-                            : { style: { height: `${20 + i * 5}px` } })}
-                        />
-                      ))}
+                    <div className='flex-1 bg-gray-100 rounded-lg p-4'>
+                      <div className='flex items-center gap-2 mb-2'>
+                        <PieChart className='w-4 h-4 text-green-600' />
+                        <span className='text-sm font-medium'>Distribution</span>
+                      </div>
+                      <div className='w-8 h-8 bg-gradient-to-r from-green-500 to-blue-600 rounded-full opacity-70'></div>
                     </div>
-                  </motion.div>
+                  </div>
                 </div>
               </div>
 
-              {/* Floating elements around dashboard */}
-              <FloatingElement delay={0.5} amplitude={15} duration={4}>
-                <div className='absolute -top-4 -right-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl p-4 shadow-lg'>
-                  <Sparkles className='w-8 h-8 text-white' />
-                </div>
-              </FloatingElement>
+              {/* Floating Elements */}
+              <motion.div
+                className='absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl z-20'
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              >
+                <Sparkles className='w-6 h-6 text-white' />
+              </motion.div>
 
-              <FloatingElement delay={1} amplitude={20} duration={5}>
-                <div className='absolute -bottom-6 -left-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl p-4 shadow-lg'>
-                  <Zap className='w-8 h-8 text-white' />
-                </div>
-              </FloatingElement>
+              <motion.div
+                className='absolute -bottom-4 -right-4 w-16 h-16 bg-gradient-to-br from-pink-500 to-red-600 rounded-2xl flex items-center justify-center shadow-xl z-20'
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <Zap className='w-8 h-8 text-white' />
+              </motion.div>
+
+              <motion.div
+                className='absolute top-1/2 -left-8 w-10 h-10 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center shadow-xl z-20'
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 3, repeat: Infinity }}
+              >
+                <BarChart3 className='w-5 h-5 text-white' />
+              </motion.div>
             </div>
           </FloatingElement>
         </motion.div>

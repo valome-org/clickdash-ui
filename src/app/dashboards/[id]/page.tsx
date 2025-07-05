@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -14,6 +13,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { PageBackground } from "@/components/ui/page-background";
 import { PageHeader } from "@/components/ui/page-header";
+
+import { useAuth } from "@/app/contexts/AuthContext";
+import { DashboardData } from "@/app/types/dashboard";
+import { ApiError, dashboardApi } from "@/lib/api";
+import { ROUTES } from "@/lib/routes";
 import {
   ArrowLeft,
   BarChart3,
@@ -22,10 +26,7 @@ import {
   PieChart,
   Share2,
 } from "lucide-react";
-
-import { useAuth } from "@/app/contexts/AuthContext";
-import { DashboardData } from "@/app/types/dashboard";
-import { ApiError, dashboardApi } from "@/lib/api";
+import Link from "next/link";
 
 export default function DashboardPage() {
   const params = useParams();
@@ -80,7 +81,7 @@ export default function DashboardPage() {
       <PageBackground>
         <div className='py-8 max-w-4xl mx-auto'>
           <Button asChild variant='outline' className='mb-8'>
-            <Link href='/dashboard'>
+            <Link href={ROUTES.DASHBOARD}>
               <ArrowLeft className='mr-2 h-4 w-4' />
               Back to Dashboards
             </Link>
@@ -105,7 +106,7 @@ export default function DashboardPage() {
                   don&apos;t have permission to view it.
                 </p>
                 <Button asChild>
-                  <Link href='/dashboard'>
+                  <Link href={ROUTES.DASHBOARD}>
                     <ArrowLeft className='mr-2 h-4 w-4' />
                     Return to Dashboard List
                   </Link>
@@ -126,7 +127,7 @@ export default function DashboardPage() {
           variant='outline'
           className='backdrop-blur-sm bg-white/50 border-white/30 shadow-lg'
         >
-          <Link href='/dashboard'>
+          <Link href={ROUTES.DASHBOARD}>
             <ArrowLeft className='mr-2 h-4 w-4' />
             Back to Dashboards
           </Link>

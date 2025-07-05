@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ROUTES } from "@/lib/routes";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -29,7 +30,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated && user) {
-      router.replace("/dashboard");
+      router.replace(ROUTES.DASHBOARD);
     }
   }, [user, isAuthenticated, isLoading, router]);
 
@@ -39,7 +40,7 @@ export default function LoginPage() {
 
     const success = await login(username, password);
     if (success) {
-      router.replace("/dashboard");
+      router.replace(ROUTES.DASHBOARD);
     }
 
     setIsSubmitting(false);
@@ -154,7 +155,7 @@ export default function LoginPage() {
               <p className='text-sm text-muted-foreground'>
                 Don&apos;t have an account?{" "}
                 <Link
-                  href='/register'
+                  href={ROUTES.REGISTER}
                   className='font-medium text-primary hover:underline'
                 >
                   Sign up

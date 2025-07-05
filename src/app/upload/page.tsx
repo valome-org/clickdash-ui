@@ -27,6 +27,7 @@ import {
   VisualizationOptions,
 } from "@/components/upload";
 import { ApiError, uploadApi } from "@/lib/api";
+import { ROUTES } from "@/lib/routes";
 
 interface NextStep {
   title: string;
@@ -85,7 +86,7 @@ export default function UploadPage() {
       setUploadProgress(100);
 
       setTimeout(() => {
-        router.push(`/dashboard/${data.dashboard_id}`);
+        router.push(ROUTES.DASHBOARD_DETAIL(data.dashboard_id));
       }, 500);
     } catch (err) {
       clearInterval(progressInterval);
@@ -93,7 +94,7 @@ export default function UploadPage() {
       if (err instanceof ApiError) {
         if (err.status === 401) {
           logout();
-          router.push("/login");
+          router.push(ROUTES.LOGIN);
           return;
         }
         setError(err.message);

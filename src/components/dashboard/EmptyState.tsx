@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { ROUTES } from "@/lib/routes";
 import { CarIcon, FileBarChart } from "lucide-react";
 import Link from "next/link";
 
@@ -16,7 +17,7 @@ export function EmptyState() {
         insufficient data or an error during processing.
       </p>
       <Button asChild>
-        <Link href='/upload'>
+        <Link href={ROUTES.UPLOAD}>
           <CarIcon className='mr-2 h-4 w-4' />
           Upload new data
         </Link>

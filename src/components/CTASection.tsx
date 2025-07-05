@@ -1,5 +1,6 @@
 "use client";
 
+import { ROUTES } from "@/lib/routes";
 import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle, Rocket } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -66,7 +67,7 @@ export default function CTASection() {
             viewport={{ once: true }}
           >
             <motion.button
-              onClick={() => router.push("/login")}
+              onClick={() => router.push(ROUTES.LOGIN)}
               className='bg-gradient-to-r from-orange-600 via-red-600 to-pink-600 text-white text-xl px-12 py-6 rounded-2xl font-bold hover:from-orange-700 hover:via-red-700 hover:to-pink-700 transition-all shadow-2xl flex items-center gap-3 mx-auto sm:mx-0'
               whileHover={{
                 scale: 1.05,

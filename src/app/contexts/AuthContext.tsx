@@ -6,6 +6,7 @@ import {
   User,
   authApi
 } from "@/lib/api";
+import { ROUTES } from "@/lib/routes";
 import React, {
   createContext,
   useCallback,
@@ -24,6 +25,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   error: string | null;
   validateToken: () => Promise<boolean>;
+  loginRedirectPath: string;
+  dashboardRedirectPath: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -160,6 +163,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated,
         error,
         validateToken,
+        loginRedirectPath: ROUTES.LOGIN,
+        dashboardRedirectPath: ROUTES.DASHBOARD,
       }}
     >
       {children}
