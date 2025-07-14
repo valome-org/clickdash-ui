@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 
 import { ChartsGrid } from "@/components/dashboard/ChartsGrid";
 import { DashboardFooter } from "@/components/dashboard/DashboardFooter";
-import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
 import { InsightsSection } from "@/components/dashboard/InsightsSection";
 import { KeyMetrics } from "@/components/dashboard/KeyMetrics";
 import { Button } from "@/components/ui/button";
@@ -18,14 +17,7 @@ import { useAuth } from "@/app/contexts/AuthContext";
 import { DashboardData } from "@/app/types/dashboard";
 import { ApiError, dashboardApi } from "@/lib/api";
 import { ROUTES } from "@/lib/routes";
-import {
-  ArrowLeft,
-  BarChart3,
-  Download,
-  LineChart,
-  PieChart,
-  Share2,
-} from "lucide-react";
+import { ArrowLeft, Download, LineChart, PieChart, Share2 } from "lucide-react";
 import Link from "next/link";
 
 export default function DashboardPage() {
@@ -172,7 +164,7 @@ export default function DashboardPage() {
       </Card>
 
       {/* Dashboard Overview */}
-      <Card className='backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-white/20 shadow-2xl mb-8'>
+      {/* <Card className='backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-white/20 shadow-2xl mb-8'>
         <CardHeader className='pb-0'>
           <CardTitle className='text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center'>
             <BarChart3 className='mr-3 h-6 w-6 text-blue-600' />
@@ -182,7 +174,7 @@ export default function DashboardPage() {
         <CardContent className='p-6'>
           <DashboardOverview dashboard={dashboard.dashboard_config} />
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Insights Section */}
       <Card className='backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-white/20 shadow-2xl mb-8'>
