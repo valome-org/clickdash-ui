@@ -4,7 +4,7 @@
 
 ClickDash is a revolutionary dashboard generator that transforms your Excel files into stunning, interactive visualizations using the power of AI. No coding skills required – just upload your data and watch the magic happen!
 
-[![Video Demo](https://img.shields.io/badge/🎥-Video%20Demo-red?style=for-the-badge)](https://youtu.be/Z6ClqWc08kQ?si=sDhvBLOVQl6aHHMy)
+[![Video Demo](https://img.shields.io/badge/🎥-Video%20Demo-red?style=for-the-badge)](https://www.youtube.com/watch?v=PWoMdniYc_w)
 
 
 > Transform your Excel data into beautiful, AI-powered dashboards with zero coding required.
