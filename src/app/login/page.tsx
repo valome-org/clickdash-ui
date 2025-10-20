@@ -162,32 +162,6 @@ export default function LoginPage() {
                 </Link>
               </p>
             </div>
-
-            <div className='border-t pt-6'>
-              <Card className='bg-muted/50'>
-                <CardContent className='p-4'>
-                  <div className='flex items-center justify-between mb-2'>
-                    <h3 className='text-sm font-medium'>Demo Account</h3>
-                    <Badge variant='secondary' className='text-xs'>
-                      Test
-                    </Badge>
-                  </div>
-                  <p className='text-xs text-muted-foreground mb-3'>
-                    Use these credentials to test the application:
-                  </p>
-                  <div className='space-y-1 text-xs'>
-                    <div className='flex justify-between'>
-                      <span>Username:</span>
-                      <code className='bg-muted px-1 rounded'>admin</code>
-                    </div>
-                    <div className='flex justify-between'>
-                      <span>Password:</span>
-                      <code className='bg-muted px-1 rounded'>admin123</code>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
           </CardContent>
         </Card>
       </motion.div>
