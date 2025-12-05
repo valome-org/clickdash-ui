@@ -32,9 +32,6 @@ export interface RegisterRequest {
 
 export interface UploadRequest {
   file: File;
-  category: string;
-  chart_types: string[];
-  number_of_charts: string;
   description: string;
 }
 
@@ -71,9 +68,13 @@ export interface DashboardResponse {
 
 // ===== UTILITY FUNCTIONS =====
 export class ApiError extends Error {
-  constructor(message: string, public status?: number, public response?: Response) {
+  constructor(
+    message: string,
+    public status?: number,
+    public response?: Response
+  ) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
   }
 }
 
@@ -81,7 +82,12 @@ export class ApiError extends Error {
 export async function handleApiResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    const errorMessage = errorData.detail || errorData.message || errorData.error || response.statusText || "API error";
+    const errorMessage =
+      errorData.detail ||
+      errorData.message ||
+      errorData.error ||
+      response.statusText ||
+      "API error";
     throw new ApiError(errorMessage, response.status, response);
   }
   return response.json();
@@ -158,17 +164,25 @@ export class ApiService {
 
   // ===== AUTHENTICATION ENDPOINTS =====
   async login(credentials: LoginRequest): Promise<LoginResponse> {
-    return fetchWithAuth<LoginResponse>(`${this.baseUrl}/api/auth/login`, undefined, {
-      method: "POST",
-      body: JSON.stringify(credentials),
-    });
+    return fetchWithAuth<LoginResponse>(
+      `${this.baseUrl}/api/auth/login`,
+      undefined,
+      {
+        method: "POST",
+        body: JSON.stringify(credentials),
+      }
+    );
   }
 
   async register(userData: RegisterRequest): Promise<LoginResponse> {
-    return fetchWithAuth<LoginResponse>(`${this.baseUrl}/api/auth/register`, undefined, {
-      method: "POST",
-      body: JSON.stringify(userData),
-    });
+    return fetchWithAuth<LoginResponse>(
+      `${this.baseUrl}/api/auth/register`,
+      undefined,
+      {
+        method: "POST",
+        body: JSON.stringify(userData),
+      }
+    );
   }
 
   async validateToken(token: string): Promise<User> {
@@ -179,36 +193,55 @@ export class ApiService {
 
   // ===== DASHBOARD ENDPOINTS =====
   async getDashboards(token: string): Promise<DashboardListResponse> {
-    return fetchWithAuth<DashboardListResponse>(`${this.baseUrl}/api/dashboards/my`, token, {
-      method: "GET",
-    });
+    return fetchWithAuth<DashboardListResponse>(
+      `${this.baseUrl}/api/dashboards/my`,
+      token,
+      {
+        method: "GET",
+      }
+    );
   }
 
-  async getDashboard(dashboardId: string, token: string): Promise<DashboardResponse> {
-    return fetchWithAuth<DashboardResponse>(`${this.baseUrl}/api/dashboard/${dashboardId}`, token, {
-      method: "GET",
-    });
+  async getDashboard(
+    dashboardId: string,
+    token: string
+  ): Promise<DashboardResponse> {
+    return fetchWithAuth<DashboardResponse>(
+      `${this.baseUrl}/api/dashboard/${dashboardId}`,
+      token,
+      {
+        method: "GET",
+      }
+    );
   }
 
   async deleteDashboard(dashboardId: string, token: string): Promise<void> {
-    return fetchWithAuth<void>(`${this.baseUrl}/api/dashboard/${dashboardId}`, token, {
-      method: "DELETE",
-    });
+    return fetchWithAuth<void>(
+      `${this.baseUrl}/api/dashboard/${dashboardId}`,
+      token,
+      {
+        method: "DELETE",
+      }
+    );
   }
 
   // ===== UPLOAD ENDPOINTS =====
-  async uploadFile(uploadData: UploadRequest, token: string): Promise<UploadResponse> {
+  async uploadFile(
+    uploadData: UploadRequest,
+    token: string
+  ): Promise<UploadResponse> {
     const formData = new FormData();
     formData.append("file", uploadData.file);
-    formData.append("category", uploadData.category);
-    formData.append("chart_types", uploadData.chart_types.join(","));
-    formData.append("number_of_charts", uploadData.number_of_charts);
     formData.append("description", uploadData.description);
 
-    return fetchFormDataWithAuth<UploadResponse>(`${this.baseUrl}/api/upload`, token, {
-      method: "POST",
-      body: formData,
-    });
+    return fetchFormDataWithAuth<UploadResponse>(
+      `${this.baseUrl}/api/upload`,
+      token,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
   }
 
   // ===== GENERIC METHODS =====
@@ -238,7 +271,11 @@ export class ApiService {
     });
   }
 
-  async postFormData<T>(endpoint: string, formData: FormData, token?: string): Promise<T> {
+  async postFormData<T>(
+    endpoint: string,
+    formData: FormData,
+    token?: string
+  ): Promise<T> {
     return fetchFormDataWithAuth<T>(`${this.baseUrl}${endpoint}`, token, {
       method: "POST",
       body: formData,
@@ -259,12 +296,15 @@ export const authApi = {
 
 export const dashboardApi = {
   getDashboards: (token: string) => apiService.getDashboards(token),
-  getDashboard: (dashboardId: string, token: string) => apiService.getDashboard(dashboardId, token),
-  deleteDashboard: (dashboardId: string, token: string) => apiService.deleteDashboard(dashboardId, token),
+  getDashboard: (dashboardId: string, token: string) =>
+    apiService.getDashboard(dashboardId, token),
+  deleteDashboard: (dashboardId: string, token: string) =>
+    apiService.deleteDashboard(dashboardId, token),
 };
 
 export const uploadApi = {
-  uploadFile: (uploadData: UploadRequest, token: string) => apiService.uploadFile(uploadData, token),
+  uploadFile: (uploadData: UploadRequest, token: string) =>
+    apiService.uploadFile(uploadData, token),
 };
 
 // ===== ENDPOINTS CONSTANTS =====

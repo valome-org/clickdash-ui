@@ -21,11 +21,7 @@ import { PageBackground } from "@/components/ui/page-background";
 import { PageHeader } from "@/components/ui/page-header";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import {
-  AdditionalDetails,
-  CategorySelection,
-  VisualizationOptions,
-} from "@/components/upload";
+import { AdditionalDetails } from "@/components/upload";
 import { ApiError, uploadApi } from "@/lib/api";
 import { ROUTES } from "@/lib/routes";
 
@@ -77,9 +73,6 @@ export default function UploadPage() {
       const data = await uploadApi.uploadFile(
         {
           file,
-          category: category === "other" ? customCategory : category,
-          chart_types: chartTypes,
-          number_of_charts: numberOfCharts,
           description,
         },
         token
@@ -158,40 +151,6 @@ export default function UploadPage() {
                   file={file}
                   disabled={isUploading}
                   onValidationError={handleFileValidationError}
-                />
-              </div>
-
-              <Separator />
-
-              {/* Category Selection */}
-              <div>
-                <h3 className="text-lg font-semibold mb-4 flex items-center">
-                  <Sparkles className="h-5 w-5 mr-2 text-purple-600" />
-                  Data Category
-                </h3>
-                <CategorySelection
-                  category={category}
-                  onCategoryChange={setCategory}
-                  customCategory={customCategory}
-                  onCustomCategoryChange={setCustomCategory}
-                  disabled={isUploading}
-                />
-              </div>
-
-              <Separator />
-
-              {/* Visualization Options */}
-              <div>
-                <h3 className="text-lg font-semibold mb-4 flex items-center">
-                  <ArrowRight className="h-5 w-5 mr-2 text-green-600" />
-                  Visualization Preferences
-                </h3>
-                <VisualizationOptions
-                  chartTypes={chartTypes}
-                  onChartTypesChange={setChartTypes}
-                  numberOfCharts={numberOfCharts}
-                  onNumberOfChartsChange={setNumberOfCharts}
-                  disabled={isUploading}
                 />
               </div>
 
