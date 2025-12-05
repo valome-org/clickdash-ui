@@ -68,7 +68,7 @@ export default function UploadPage() {
     // Simple progress simulation
     let progress = 0;
     const progressInterval = setInterval(() => {
-      progress += Math.random() * 10;
+      progress += Math.random() * 1.5;
       if (progress > 90) progress = 90;
       setUploadProgress(Math.round(progress));
     }, 300);
