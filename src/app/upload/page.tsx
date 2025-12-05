@@ -53,11 +53,11 @@ export default function UploadPage() {
   };
 
   const isFormValid = (): boolean => {
-    return !!file && !!category;
+    return !!file;
   };
 
   const handleUpload = async () => {
-    if (!file || !category || !token) {
+    if (!file || !token) {
       setError("Please select a file and category");
       return;
     }
@@ -74,13 +74,16 @@ export default function UploadPage() {
     }, 300);
 
     try {
-      const data = await uploadApi.uploadFile({
-        file,
-        category: category === "other" ? customCategory : category,
-        chart_types: chartTypes,
-        number_of_charts: numberOfCharts,
-        description,
-      }, token);
+      const data = await uploadApi.uploadFile(
+        {
+          file,
+          category: category === "other" ? customCategory : category,
+          chart_types: chartTypes,
+          number_of_charts: numberOfCharts,
+          description,
+        },
+        token
+      );
 
       clearInterval(progressInterval);
       setUploadProgress(100);
@@ -125,29 +128,29 @@ export default function UploadPage() {
 
   if (!user) {
     return (
-      <div className='flex items-center justify-center min-h-screen'>
+      <div className="flex items-center justify-center min-h-screen">
         <LoadingSpinner />
       </div>
     );
   }
   return (
     <PageBackground>
-      <div className='py-12'>
+      <div className="py-12">
         <PageHeader
-          badge='Excel to Dashboard'
-          title='Create Interactive Dashboard'
-          description='Upload your Excel file and get AI-powered visualizations in seconds'
+          badge="Excel to Dashboard"
+          title="Create Interactive Dashboard"
+          description="Upload your Excel file and get AI-powered visualizations in seconds"
         />
 
-        <div className='max-w-4xl mx-auto'>
-          <Card className='backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-white/20 shadow-2xl overflow-hidden'>
-            <CardContent className='p-8 space-y-8'>
+        <div className="max-w-4xl mx-auto">
+          <Card className="backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-white/20 shadow-2xl overflow-hidden">
+            <CardContent className="p-8 space-y-8">
               {error && <ErrorAlert message={error} />}
 
               {/* File Upload Section */}
               <div>
-                <h3 className='text-lg font-semibold mb-4 flex items-center'>
-                  <Upload className='h-5 w-5 mr-2 text-blue-600' />
+                <h3 className="text-lg font-semibold mb-4 flex items-center">
+                  <Upload className="h-5 w-5 mr-2 text-blue-600" />
                   Excel File
                 </h3>
                 <FileUpload
@@ -162,8 +165,8 @@ export default function UploadPage() {
 
               {/* Category Selection */}
               <div>
-                <h3 className='text-lg font-semibold mb-4 flex items-center'>
-                  <Sparkles className='h-5 w-5 mr-2 text-purple-600' />
+                <h3 className="text-lg font-semibold mb-4 flex items-center">
+                  <Sparkles className="h-5 w-5 mr-2 text-purple-600" />
                   Data Category
                 </h3>
                 <CategorySelection
@@ -179,8 +182,8 @@ export default function UploadPage() {
 
               {/* Visualization Options */}
               <div>
-                <h3 className='text-lg font-semibold mb-4 flex items-center'>
-                  <ArrowRight className='h-5 w-5 mr-2 text-green-600' />
+                <h3 className="text-lg font-semibold mb-4 flex items-center">
+                  <ArrowRight className="h-5 w-5 mr-2 text-green-600" />
                   Visualization Preferences
                 </h3>
                 <VisualizationOptions
@@ -196,7 +199,7 @@ export default function UploadPage() {
 
               {/* Additional Details */}
               <div>
-                <h3 className='text-lg font-semibold mb-4'>
+                <h3 className="text-lg font-semibold mb-4">
                   Additional Context
                 </h3>
                 <AdditionalDetails
@@ -208,17 +211,17 @@ export default function UploadPage() {
 
               {/* Upload Progress */}
               {isUploading && (
-                <div className='mt-6 space-y-4'>
-                  <div className='flex items-center justify-between'>
-                    <span className='text-sm font-medium text-muted-foreground'>
+                <div className="mt-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-muted-foreground">
                       Processing your file...
                     </span>
-                    <span className='text-sm font-bold text-primary'>
+                    <span className="text-sm font-bold text-primary">
                       {uploadProgress} %
                     </span>
                   </div>
-                  <Progress value={uploadProgress} className='h-3' />
-                  <p className='text-sm text-center text-muted-foreground'>
+                  <Progress value={uploadProgress} className="h-3" />
+                  <p className="text-sm text-center text-muted-foreground">
                     {uploadProgress < 100
                       ? "Analyzing your data and generating insights..."
                       : "Almost ready! Redirecting to your dashboard..."}
@@ -227,12 +230,12 @@ export default function UploadPage() {
               )}
 
               {/* Submit Button */}
-              <div className='flex justify-center pt-4'>
+              <div className="flex justify-center pt-4">
                 <Button
                   onClick={handleUpload}
                   disabled={!isFormValid() || isUploading}
-                  size='lg'
-                  className='bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg font-semibold shadow-lg transition-all duration-200 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed'
+                  size="lg"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg font-semibold shadow-lg transition-all duration-200 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isUploading ? (
                     <>
@@ -243,14 +246,14 @@ export default function UploadPage() {
                           repeat: Infinity,
                           ease: "linear",
                         }}
-                        className='mr-2 h-5 w-5 border-2 border-white/30 border-t-white rounded-full'
+                        className="mr-2 h-5 w-5 border-2 border-white/30 border-t-white rounded-full"
                       />
                       Processing...
                     </>
                   ) : (
                     <>
                       Generate Dashboard
-                      <ArrowRight className='h-5 w-5 ml-2' />
+                      <ArrowRight className="h-5 w-5 ml-2" />
                     </>
                   )}
                 </Button>
@@ -259,24 +262,24 @@ export default function UploadPage() {
           </Card>
 
           {/* What Happens Next Section */}
-          <div className='mt-16'>
-            <h2 className='text-3xl font-bold text-center mb-12 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent'>
+          <div className="mt-16">
+            <h2 className="text-3xl font-bold text-center mb-12 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               What Happens Next ?
             </h2>
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {nextSteps.map((step, index) => (
                 <Card
                   key={index}
-                  className='backdrop-blur-sm bg-white/50 dark:bg-slate-900/50 border-white/20 shadow-lg hover:shadow-xl transition-shadow duration-300'
+                  className="backdrop-blur-sm bg-white/50 dark:bg-slate-900/50 border-white/20 shadow-lg hover:shadow-xl transition-shadow duration-300"
                 >
-                  <CardHeader className='text-center'>
-                    <div className='w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-4 mx-auto'>
-                      <span className='text-white font-bold text-lg'>
+                  <CardHeader className="text-center">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-4 mx-auto">
+                      <span className="text-white font-bold text-lg">
                         {index + 1}
                       </span>
                     </div>
-                    <CardTitle className='text-xl mb-2'>{step.title}</CardTitle>
-                    <CardDescription className='text-base'>
+                    <CardTitle className="text-xl mb-2">{step.title}</CardTitle>
+                    <CardDescription className="text-base">
                       {step.description}
                     </CardDescription>
                   </CardHeader>
